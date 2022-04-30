@@ -36,12 +36,12 @@ public class PlayerBehavior : MonoBehaviour
 
     public void CastLine(InputAction.CallbackContext _ctx)
     {
+        /*
         if (curFish == null)
         {
             if (_ctx.performed)
             {
-                Instantiate(lure, transform.position, Quaternion.identity).GetComponent<LureBehavior>().Init(throwForce,
-                    fish.transform.position - transform.position, this);
+                Instantiate(lure, transform.position, Quaternion.identity).GetComponent<LureBehavior>().Init();
             }
         }
         else
@@ -55,6 +55,7 @@ public class PlayerBehavior : MonoBehaviour
                 isPullingFish = false;
             }
         }
+        */
     }
 
     public void AngleRod(InputAction.CallbackContext _ctx) 
