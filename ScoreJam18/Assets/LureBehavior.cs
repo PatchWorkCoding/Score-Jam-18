@@ -8,22 +8,35 @@ public class LureBehavior : MonoBehaviour
 {
     [Header("Outside Combat Properties")]
     [SerializeField]
+    bool doGlobalMovement = false;
+    [SerializeField]
     float rotationSpeed = 1;
     [SerializeField]
     bool doClamp = false;
     [SerializeField]
     Vector2 rotationMinMax = Vector2.zero;
     [SerializeField]
-    float moveSpeed = 1;
+    float forwardMoveSpeed = 1, backwardMoveSpeed = 2;
     [SerializeField]
     float gravity = 0.5f;
-    
+
     Rigidbody RB = null;
     float rotZ = 0;
-    float previousLoggedTime = 0;
-    bool movingForward = false;
-    PlayerBehavior myPlayer = null;
+    bool movingForward = false, movingBack = false;
     Vector2 input = Vector2.zero;
+
+    [Header("Outside Combat Properties")]
+    [SerializeField]
+    float pullForce = 1;
+    [SerializeField]
+    float overdriveForce = 1;
+    [SerializeField]
+    bool doGlobalCombatMovement = false;
+
+    bool isInCombat = false;
+    FishBehavior curFish = null;
+
+
 
     private void Start()
     {
@@ -34,60 +47,71 @@ public class LureBehavior : MonoBehaviour
     public void Init()
     {
         RB = GetComponent<Rigidbody>();
-        /*
-        fallTime = 1;
-        speed = _speed;
-        myPlayer = _player;
-        isFalling = true;
-
-        
-        RB.velocity = _dir * _speed;
-        */
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (doClamp)
+        if (!isInCombat)
         {
-            rotZ = Mathf.Clamp(rotZ + (input.x * rotationSpeed * Time.deltaTime), rotationMinMax.x, rotationMinMax.y);
-            
-        }
-        else
-        {
-            rotZ += (input.x * rotationSpeed * Time.deltaTime);
-        }
-
-        transform.rotation = Quaternion.Euler(0, 0, rotZ);
-
-        RB.velocity = (Vector3.down * gravity) + (transform.up * -(movingForward ? moveSpeed : 0));
-
-        /*
-        if (isFalling && fallTime > 0)
-        {
-            RB.velocity = RB.velocity.normalized * (lureDeccelerationCurve.Evaluate(fallTime) * speed);
-            fallTime = Mathf.Clamp01(fallTime - (Time.deltaTime * fallTimeScale));
-
-            if (lureDeccelerationCurve.Evaluate(fallTime) <= 0)
+            if (doGlobalMovement)
             {
-                isFalling = false;
-                RB.velocity = Vector3.zero;
+                RB.velocity = new Vector3(input.x * forwardMoveSpeed, (input.y > 0 ? backwardMoveSpeed : input.y < 0 ? -forwardMoveSpeed : 0) + -gravity, 0);
+            }
+
+            else
+            {
+                if (doClamp)
+                {
+                    rotZ = Mathf.Clamp(rotZ + (input.x * rotationSpeed * Time.deltaTime), rotationMinMax.x, rotationMinMax.y);
+                }
+                else
+                {
+                    rotZ += (input.x * rotationSpeed * Time.deltaTime);
+                }
+
+                transform.rotation = Quaternion.Euler(0, 0, rotZ);
+                RB.velocity = (Vector3.down * gravity) + (transform.up * -(movingForward ? forwardMoveSpeed : (movingBack ? -backwardMoveSpeed : 0)));
             }
         }
-        */
+
+        else
+        {
+            if (curFish != null)
+            {
+                if (doGlobalCombatMovement)
+                {
+                    RB.velocity = ((Vector3)input.normalized * pullForce) + curFish.FightVelocity;
+
+                    Debug.DrawRay(transform.position, (input.normalized * pullForce) * 2, Color.yellow);
+                }
+
+                else
+                {
+                    if (doClamp)
+                    {
+                        rotZ = Mathf.Clamp(rotZ + (input.x * rotationSpeed * Time.deltaTime), rotationMinMax.x, rotationMinMax.y);
+                    }
+                    else
+                    {
+                        rotZ += (input.x * rotationSpeed * Time.deltaTime);
+                    }
+
+                    RB.velocity = ((Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * pullForce) + curFish.FightVelocity;
+
+                    Debug.DrawRay(transform.position, (Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * 2, Color.yellow);
+                }
+
+                Debug.DrawRay(transform.position, (((Vector3)input.normalized * pullForce) + curFish.FightVelocity) * 2, Color.green);
+                Debug.DrawRay(curFish.transform.position, curFish.FightVelocity * 2, Color.yellow);
+            }
+            
+        }
     }
 
     public void RotateDrone(InputAction.CallbackContext _ctx)
     {
         input = _ctx.ReadValue<Vector2>();
-        
-        /*
-        if (_ctx.performed)
-        {
-            
-            //previousLoggedTime = Time.time;
-        }
-        */
     }
 
     public void MoveFoward(InputAction.CallbackContext _ctx) 
@@ -103,9 +127,32 @@ public class LureBehavior : MonoBehaviour
         }
     }
 
+    public void MoveBackward(InputAction.CallbackContext _ctx)
+    {
+        if (_ctx.started)
+        {
+            movingBack = true;
+        }
 
-    public void StickToObject() 
-    { 
-        
+        else if (_ctx.canceled)
+        {
+            movingBack = false;
+        }
+    }
+
+    public void StickToObject(GameObject _obj) 
+    {
+        if (_obj.tag == "fish")
+        {
+            if (_obj.GetComponent<FishBehavior>())
+            {
+                curFish = _obj.GetComponent<FishBehavior>();
+                isInCombat = true;
+                curFish.ChangeFishState(FishState.COMBAT);
+                Debug.Log("Attach to Fish");
+            }
+        }
+
+        print("Object Attached: " + _obj.name);
     }
 }

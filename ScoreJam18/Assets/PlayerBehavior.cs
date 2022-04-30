@@ -25,13 +25,14 @@ public class PlayerBehavior : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        /*
         Debug.DrawRay(transform.position, Quaternion.AngleAxis(angle, -Vector3.forward) * Vector3.right);
 
         if (curFish != null)
         {
             curFish.PullFish(isPullingFish ? -pullForce : 0);
         }
-        
+        */
     }
 
     public void CastLine(InputAction.CallbackContext _ctx)

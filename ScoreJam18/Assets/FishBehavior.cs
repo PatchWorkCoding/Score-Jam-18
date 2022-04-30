@@ -21,6 +21,9 @@ public class FishBehavior : MonoBehaviour
     PlayerBehavior myPlayer = null;
     [SerializeField]
     float pullForce = 10, updateTime = 0.5f;
+
+    Vector3 fightVelocity = Vector3.zero;
+
     [SerializeField]
     float timer = 0f;
     [SerializeField]
@@ -119,6 +122,14 @@ public class FishBehavior : MonoBehaviour
 
             case FishState.COMBAT:
                 isResting = isResting == false;
+                if (!isResting)
+                {
+                    ChanghFightVelocity();
+                }
+                else
+                {
+                    fightVelocity = Vector3.zero;
+                }
                 break;
 
             case FishState.WALLCHECK:
@@ -187,7 +198,15 @@ public class FishBehavior : MonoBehaviour
         }
     }
 
+    void ChanghFightVelocity() 
+    {
+        fightVelocity = (Quaternion.AngleAxis(Random.Range(-45f, 45f), Vector3.forward) * Vector3.down) * pullForce;
+    }
 
+    public Vector3 FightVelocity 
+    {
+        get { return fightVelocity; }
+    }
 }
 
 
