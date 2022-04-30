@@ -32,7 +32,7 @@ public class Magnet : MonoBehaviour
             return Vector3.zero;
         }
 
-        var distance = Vector3.Distance(RemoveZ(otherMagnet.transform.position), RemoveZ(transform.position));
+        var distance = Vector3.Distance(otherMagnet.transform.position, transform.position);
         var totalRadius = m_radius + otherMagnet.m_radius;
         var closeEnough = distance <= totalRadius;
         if (!closeEnough)
@@ -142,7 +142,14 @@ public class Magnet : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!collision.transform.TryGetComponent(out Magnet otherMagnet))
+        // Zack: If the collision is with ourselves, then ignore
+        if (collision.transform.IsChildOf(transform))
+        {
+            return;
+        }
+        
+        var otherMagnet = collision.transform.GetComponentInChildren<Magnet>(true);
+        if (otherMagnet == null)
         {
             return;
         }
@@ -168,7 +175,8 @@ public class Magnet : MonoBehaviour
 
     private void OnCollisionExit(Collision collision)
     {
-        if (!collision.transform.TryGetComponent(out Magnet otherMagnet))
+        var otherMagnet = collision.transform.GetComponentInChildren<Magnet>(true);
+        if (otherMagnet == null)
         {
             return;
         }
@@ -221,11 +229,6 @@ public class Magnet : MonoBehaviour
     private void OnValidate()
     {
         SetSpriteColor(m_isNegative);
-    }
-
-    private Vector3 RemoveZ(Vector3 original)
-    {
-        return new Vector3(original.x, original.y, 0f);
     }
 
     private void SetSpriteColor(bool isNegative)
