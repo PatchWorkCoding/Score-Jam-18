@@ -6,6 +6,10 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class LureBehavior : MonoBehaviour
 {
+    [Header("Properties")]
+    [SerializeField]
+    Camera myCamera;
+
     [Header("Outside Combat Properties")]
     [SerializeField]
     bool doGlobalMovement = false;
@@ -29,14 +33,16 @@ public class LureBehavior : MonoBehaviour
     [SerializeField]
     float pullForce = 1;
     [SerializeField]
-    float overdriveForce = 1;
+    float overdriveForce = 1, overdriveTime = 0;
     [SerializeField]
     bool doGlobalCombatMovement = false;
 
     bool isInCombat = false;
     FishBehavior curFish = null;
+    GameObject attachedObject = null;
+    float curOverdriveTime = 0;
 
-
+    bool isInLimbo = false;
 
     private void Start()
     {
@@ -81,9 +87,9 @@ public class LureBehavior : MonoBehaviour
             {
                 if (doGlobalCombatMovement)
                 {
-                    RB.velocity = ((Vector3)input.normalized * pullForce) + curFish.FightVelocity;
+                    RB.velocity = ((Vector3)input.normalized * (movingBack ? overdriveForce : pullForce)) + curFish.FightVelocity;
 
-                    Debug.DrawRay(transform.position, (input.normalized * pullForce) * 2, Color.yellow);
+                    Debug.DrawRay(transform.position, (Vector3)input.normalized * (movingBack ? overdriveForce : pullForce) * 2, Color.yellow);
                 }
 
                 else
@@ -97,15 +103,61 @@ public class LureBehavior : MonoBehaviour
                         rotZ += (input.x * rotationSpeed * Time.deltaTime);
                     }
 
-                    RB.velocity = ((Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * pullForce) + curFish.FightVelocity;
+                    RB.velocity = ((Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (movingBack ? overdriveForce : pullForce)) + 
+                        curFish.FightVelocity;
 
-                    Debug.DrawRay(transform.position, (Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * 2, Color.yellow);
+                    Debug.DrawRay(transform.position, 
+                        (Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (movingBack ? overdriveForce : pullForce) * 2, Color.yellow);
+                }
+
+                if (movingBack)
+                {
+                    if (curOverdriveTime >= overdriveTime)
+                    {
+                        Debug.Log("Die");
+                    }
+                    else
+                    {
+                        curOverdriveTime += Time.deltaTime;
+                    }
+                }
+                else if (curOverdriveTime > 0)
+                {
+                    curOverdriveTime -= Time.deltaTime;
                 }
 
                 Debug.DrawRay(transform.position, (((Vector3)input.normalized * pullForce) + curFish.FightVelocity) * 2, Color.green);
                 Debug.DrawRay(curFish.transform.position, curFish.FightVelocity * 2, Color.yellow);
             }
             
+        }
+
+        if (transform.position.y >= GameManager.GM.SeaLevel)
+        {
+            if (isInCombat)
+            {
+                isInCombat = false;
+                Destroy(curFish.gameObject);
+                curFish = null;
+            }
+
+            if (attachedObject != null)
+            {
+                if (attachedObject.GetComponent<ValueBehavior>())
+                {
+                    GameManager.GM.AddScore(attachedObject.GetComponent<ValueBehavior>().Value);
+                    attachedObject = null;
+                    print("called");
+                }
+            }
+
+            GameManager.GM.TransitionTopSide();
+        }
+
+        if (transform.position.y < 0)
+        {
+            myCamera.transform.position = Vector3.Lerp(myCamera.transform.position,
+                new Vector3(myCamera.transform.position.x, transform.position.y, myCamera.transform.position.z), Time.deltaTime);
         }
     }
 
@@ -153,6 +205,7 @@ public class LureBehavior : MonoBehaviour
             }
         }
 
+        attachedObject = _obj;
         print("Object Attached: " + _obj.name);
     }
 }
