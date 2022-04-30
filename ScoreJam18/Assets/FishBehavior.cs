@@ -38,10 +38,13 @@ public class FishBehavior : MonoBehaviour
     Rigidbody RB = null;
     RaycastHit feeler;
     RaycastHit feeler2;
-
+    [SerializeField]
+    float whiskerDistance = 2f;
+    float whiskerDistance2 = 4f;
     bool isResting = false;
     float timeSinceLastUpdate = 0;
 
+    bool shouldTurn;
     // Start is called before the first frame update
     // Set tween to Keep The parent Rotation, for both
 
@@ -78,15 +81,15 @@ public class FishBehavior : MonoBehaviour
         turnTImer += Time.deltaTime;
 
 
-        if (Physics.Raycast(RB.position, -gameObject.transform.GetChild(0).up, out feeler) ||
-        Physics.Raycast(RB.position, gameObject.transform.GetChild(0).up, out feeler2))
+        if (Physics.Raycast(RB.position, -gameObject.transform.GetChild(0).up, out feeler, whiskerDistance) ||
+        Physics.Raycast(RB.position, gameObject.transform.GetChild(0).up, out feeler2, whiskerDistance2))
         {
             curState = FishState.WALLCHECK;
         }
-        
 
-        Debug.DrawRay(RB.position, -gameObject.transform.GetChild(0).up * 10f, Color.black);
-        Debug.DrawRay(RB.position, gameObject.transform.GetChild(0).up * 10f, Color.red);
+
+        Debug.DrawRay(RB.position, -gameObject.transform.GetChild(0).up * whiskerDistance, Color.black);
+        Debug.DrawRay(RB.position, gameObject.transform.GetChild(0).up * whiskerDistance2, Color.red);
     }
 
     private void FixedUpdate()
@@ -133,18 +136,24 @@ public class FishBehavior : MonoBehaviour
                 break;
 
             case FishState.WALLCHECK:
-                if (feeler.collider.name == "Cube" || feeler2.collider.name == "Cube")
+                //fix
+                if (feeler.collider == true)
                 {
-                    if (feeler.collider == true && feeler.distance > 10f)
+                    if (feeler.collider == true)
                     {
                         LeanTween.rotate(gameObject, new Vector3(0, 180, 0), .5f);
-                        RB.velocity = gameObject.transform.GetChild(0).forward;
-                    }
-                    else if (feeler2.collider == false)
-                    {
-                        curState = FishState.WANDERING;
+                        RB.velocity = gameObject.transform.GetChild(0).up;
                     }
                 }
+                else if (true)
+                {
+
+                }
+                else
+                {
+                    curState = FishState.WANDERING;
+                }
+                
 
                 break;
             default:
@@ -165,45 +174,49 @@ public class FishBehavior : MonoBehaviour
 
     void changeDirection()
     {
-        if (!Physics.Raycast(RB.position, -gameObject.transform.GetChild(0).up, out feeler) &&
-        !Physics.Raycast(RB.position, gameObject.transform.GetChild(0).up, out feeler2))
-        {
-            float rand2 = Random.Range(0, 2);
-            float rand3 = Random.Range(0, 2);
-            if (rand2 >= 1)
-            {
-                Vector3 rotation = new Vector3(0, 0, Random.Range(45f, 130f));
-                LeanTween.rotate(transform.GetChild(0).gameObject, rotation, 1f);
-                LeanTween.delayedCall(1f, () => timeKeeper = true);
-            }
-            LeanTween.rotate(transform.GetChild(0).gameObject, new Vector3(0, 0, 90), flaten.Evaluate(timer));
-            if (timer >= 3)
-            {
-                timer = 0;
-                timeKeeper = false;
-            }
 
-            if (rand3 >= 1)
+
+        float rand2 = Random.Range(0, 10);
+        
+
+        if (!LeanTween.isTweening(transform.GetChild(0).gameObject))
+        {
+            if (rand2 >= 5)
             {
+                Vector3 rotation = new Vector3(RB.transform.rotation.y, 0, Random.Range(45f, 130f));
+                LeanTween.rotate(transform.GetChild(0).gameObject, rotation, 1f);
+                
+            }
+            LeanTween.rotate(transform.GetChild(0).gameObject, new Vector3(RB.transform.rotation.y,0, 90), .5f);
+
+            if (rand2 <= 5)
+            {
+                LeanTween.delayedCall(.1f, () => timeKeeper = true);
                 if (gameObject.transform.rotation.y > 0f)
                 {
-                    LeanTween.delayedCall(2f, () => LeanTween.rotate(gameObject, new Vector3(0, 0, 0), .5f));
+                    Quaternion rotation2 = Quaternion.Euler(0f, 180f, 0f);
+                    Quaternion.Lerp(RB.gameObject.transform.rotation, rotation2, flaten.Evaluate(timer));
                 }
                 else
                 {
-                    LeanTween.delayedCall(2f, () => LeanTween.rotate(gameObject, new Vector3(0, 180, 0), .5f));
+                    Quaternion rotation3 = Quaternion.Euler(0f, 180f, 0f);
+                    Quaternion.Lerp(RB.gameObject.transform.rotation, rotation3, flaten.Evaluate(timer));
                 }
-
             }
         }
+        if (timer == 2)
+        {
+            timer = 0;
+        }
+
     }
 
-    void ChanghFightVelocity() 
+    void ChanghFightVelocity()
     {
         fightVelocity = (Quaternion.AngleAxis(Random.Range(-45f, 45f), Vector3.forward) * Vector3.down) * pullForce;
     }
 
-    public Vector3 FightVelocity 
+    public Vector3 FightVelocity
     {
         get { return fightVelocity; }
     }
