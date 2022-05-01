@@ -9,6 +9,8 @@ public class LureBehavior : MonoBehaviour
     [Header("Properties")]
     [SerializeField]
     Camera myCamera;
+    [SerializeField]
+    Magnet myMagnet = null;
 
     [Header("Outside Combat Properties")]
     [SerializeField]
@@ -114,7 +116,7 @@ public class LureBehavior : MonoBehaviour
                 {
                     if (curOverdriveTime >= overdriveTime)
                     {
-                        Debug.Log("Die");
+                        //Debug.Log("Die");
                     }
                     else
                     {
@@ -151,6 +153,8 @@ public class LureBehavior : MonoBehaviour
                 }
             }
 
+
+            RB.velocity = Vector3.zero;
             GameManager.GM.TransitionTopSide();
         }
 
@@ -207,5 +211,15 @@ public class LureBehavior : MonoBehaviour
 
         attachedObject = _obj;
         print("Object Attached: " + _obj.name);
+    }
+
+    private void OnEnable()
+    {
+        myMagnet.enabled = true;
+    }
+
+    private void OnDisable()
+    {
+        myMagnet.enabled = false;
     }
 }

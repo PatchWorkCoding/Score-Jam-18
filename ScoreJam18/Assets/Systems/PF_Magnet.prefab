@@ -110,6 +110,7 @@ MonoBehaviour:
   m_rigidbody: {fileID: 2998190089034855633}
   m_rotationOffset: -90
   m_spriteRenderer: {fileID: 2998190089034855635}
+  isFish: 0
 --- !u!54 &2998190089034855633
 Rigidbody:
   m_ObjectHideFlags: 0
