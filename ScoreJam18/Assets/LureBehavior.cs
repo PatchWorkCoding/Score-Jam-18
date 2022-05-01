@@ -58,6 +58,7 @@ public class LureBehavior : MonoBehaviour
     public void Init()
     {
         RB = GetComponent<Rigidbody>();
+        transform.GetChild(1).gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -82,6 +83,7 @@ public class LureBehavior : MonoBehaviour
                 {
                     rotZ = Mathf.Clamp(rotZ + (input.x * rotationSpeed * deltaTime), rotationMinMax.x, rotationMinMax.y);
                 }
+
                 else
                 {
                     rotZ += (input.x * rotationSpeed * deltaTime);
@@ -123,6 +125,8 @@ public class LureBehavior : MonoBehaviour
                 {
                     if (curOverdriveTime >= overdriveTime)
                     {
+                        GoTopside();
+                        //This is where player should die!!
                         //Debug.Log("Die");
                     }
                     else
@@ -142,32 +146,42 @@ public class LureBehavior : MonoBehaviour
 
         if (transform.position.y >= GameManager.GM.SeaLevel)
         {
-            if (isInCombat)
-            {
-                isInCombat = false;
-                Destroy(curFish.gameObject);
-                curFish = null;
-            }
-
-            if (attachedObject != null)
-            {
-                if (attachedObject.GetComponent<ValueBehavior>())
-                {
-                    GameManager.GM.AddScore(attachedObject.GetComponent<ValueBehavior>().Value);
-                    attachedObject = null;
-                    print("called");
-                }
-            }
-
-
-            RB.velocity = Vector3.zero;
-            GameManager.GM.TransitionTopSide();
+            GoTopside();
         }
 
         if (transform.position.y < 0)
         {
             myCamera.transform.position = Vector3.Lerp(myCamera.transform.position, new Vector3(myCamera.transform.position.x, transform.position.y, myCamera.transform.position.z), Time.fixedDeltaTime);
         }
+    }
+
+
+    private void GoTopside() 
+    {
+        transform.GetChild(1).gameObject.SetActive(true);
+        LeanTween.scale(transform.GetChild(1).GetChild(1).gameObject, new Vector3(3, 3, 3), 1f);
+
+        GameManager.GM.TransitionTopSide(curFish != null, curOverdriveTime >= overdriveTime);
+
+        if (isInCombat)
+        {
+            isInCombat = false;
+            Destroy(curFish.gameObject);
+            curFish = null;
+        }
+
+        if (attachedObject != null)
+        {
+            if (attachedObject.GetComponent<ValueBehavior>())
+            {
+                GameManager.GM.AddScore(attachedObject.GetComponent<ValueBehavior>().Value);
+                attachedObject = null;
+                Destroy(attachedObject);
+                print("called");
+            }
+        }
+
+        RB.velocity = Vector3.zero;
     }
 
     private void UpdatePropellerSpin()
