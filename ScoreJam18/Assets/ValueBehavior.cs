@@ -10,5 +10,6 @@ public class ValueBehavior : MonoBehaviour
     public uint Value 
     { 
         get { return value; }
+        set { this.value = value; }
     }
 }

@@ -3,36 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(ValueBehavior))]
 public class FishBehavior : MonoBehaviour
 {
-
-    [Header("Fish Stats")]
+    [Header("Base Fish Stats")]
     [SerializeField]
-    float str;
+    float SIZE;
     [SerializeField]
-    float size;
+    float STAMINA;
     [SerializeField]
-    float pointValue;
-    [SerializeField]
-    float Stamina;
-    [SerializeField]
-    AnimationCurve flaten;
-    [SerializeField]
-    PlayerBehavior myPlayer = null;
-    [SerializeField]
-    float pullForce = 10, updateTime = 0.5f;
-
-    Vector3 fightVelocity = Vector3.zero;
-
-    [SerializeField]
-    float timer = 0f;
-    [SerializeField]
-    GameObject MagnetLatch;
-    Quaternion temp;
-    bool timeKeeper;
-    bool shouldChangeDirection;
-    [SerializeField]
-    float turnTImer = 0;
+    float POINTVALUE;
     [SerializeField]
     FishState curState = FishState.WANDERING;
     Rigidbody RB = null;
@@ -40,14 +20,30 @@ public class FishBehavior : MonoBehaviour
     RaycastHit feeler2;
     [SerializeField]
     float whiskerDistance = 2f;
-    float whiskerDistance2 = 4f;
     bool isResting = false;
     float timeSinceLastUpdate = 0;
-
     bool shouldTurn;
+    private Vector3 fightVelocity;
+    private float pullForce;
+    private RaycastHit whiskerhit;
+    [SerializeField]
+    private float updateTime;
+
+    private float speed;
+    [SerializeField]
+    private float Maxspeed;
+    [SerializeField]
+    private float Minspeed;
+    private bool Caught;
+    [SerializeField]
+    private float dotDown;
+    [SerializeField]
+    private float dotup;
+    [SerializeField]
+    AnimationCurve SizeScaler;
     // Start is called before the first frame update
     // Set tween to Keep The parent Rotation, for both
-
+    
     void Start()
     {
         Init();
@@ -56,13 +52,26 @@ public class FishBehavior : MonoBehaviour
     void Init()
     {
         RB = GetComponent<Rigidbody>();
-
-        shouldChangeDirection = true;
+        
+        SIZE = Random.Range(0.1f, 1.5f);
+        STAMINA = 3 - SIZE;
+        POINTVALUE = Mathf.CeilToInt(SIZE * 100);
+        GetComponent<ValueBehavior>().Value = (uint)POINTVALUE;
+        gameObject.transform.localScale = new Vector3(SIZE, SIZE, SIZE);
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.DrawRay(RB.position, RB.transform.GetChild(0).right * whiskerDistance, Color.red);
+        Debug.DrawRay(RB.position, -RB.transform.GetChild(0).right * whiskerDistance, Color.red);
+    }
+
+    private void FixedUpdate()
+    {
+        RB.velocity = transform.right * speed;
+
+
         if (timeSinceLastUpdate >= updateTime)
         {
             UpdateState();
@@ -70,95 +79,64 @@ public class FishBehavior : MonoBehaviour
         }
         else
         {
-            timeSinceLastUpdate += Time.deltaTime;
-
+            timeSinceLastUpdate += Time.fixedDeltaTime;
         }
-        if (timeKeeper)
+        if (Physics.Raycast(RB.position, RB.transform.right, out whiskerhit, whiskerDistance))
         {
-            timer += Time.deltaTime;
-        }
-        timer += Time.deltaTime;
-        turnTImer += Time.deltaTime;
+            changeDirection(whiskerhit.normal);
 
-
-        if (Physics.Raycast(RB.position, -gameObject.transform.GetChild(0).up, out feeler, whiskerDistance) ||
-        Physics.Raycast(RB.position, gameObject.transform.GetChild(0).up, out feeler2, whiskerDistance2))
-        {
-            curState = FishState.WALLCHECK;
-        }
-
-
-        Debug.DrawRay(RB.position, -gameObject.transform.GetChild(0).up * whiskerDistance, Color.black);
-        Debug.DrawRay(RB.position, gameObject.transform.GetChild(0).up * whiskerDistance2, Color.red);
-    }
-
-    private void FixedUpdate()
-    {
-
-        if (turnTImer >= 4f)
-        {
-            if (RB.velocity.normalized.x == 1f)
-            {
-                RB.velocity = transform.GetChild(0).up;
-                turnTImer = 0;
-            }
-            else
-            {
-                RB.velocity = -transform.GetChild(0).up;
-                turnTImer = 0;
-            }
-            print("called");
+            Debug.Log(whiskerhit.collider.name);
         }
 
     }
     public void UpdateState()
     {
-        switch (curState)
+        if (!Caught)
         {
-            case FishState.WANDERING:
 
-                if (shouldChangeDirection)
-                {
-                    changeDirection();
-                }
-                break;
 
-            case FishState.COMBAT:
-                isResting = isResting == false;
-                if (!isResting)
-                {
-                    ChanghFightVelocity();
-                }
-                else
-                {
-                    fightVelocity = Vector3.zero;
-                }
-                break;
+            switch (curState)
+            {
+                case FishState.WANDERING:
 
-            case FishState.WALLCHECK:
-                //fix
-                if (feeler.collider == true)
-                {
-                    if (feeler.collider == true)
+                    int roll2 = UnityEngine.Random.Range(0, 20);
+                    var rotator = RB.rotation.eulerAngles;
+                    int rad = UnityEngine.Random.Range(-45, 45);
+                    rotator.z = rad;
+                    LeanTween.rotate(gameObject, rotator, 1f);
+
+                    if (roll2 % 2 == 0)
                     {
-                        LeanTween.rotate(gameObject, new Vector3(0, 180, 0), .5f);
-                        RB.velocity = gameObject.transform.GetChild(0).up;
+                        speed = Maxspeed;
                     }
-                }
-                else if (true)
-                {
+                    else
+                    {
+                        speed = Minspeed;
+                    }
+                    break;
 
-                }
-                else
-                {
-                    curState = FishState.WANDERING;
-                }
-                
+                case FishState.COMBAT:
+                    isResting = isResting == false;
+                    if (!isResting)
+                    {
+                        ChanghFightVelocity();
+                    }
+                    else
+                    {
+                        fightVelocity = Vector3.zero;
+                    }
+                    break;
 
-                break;
-            default:
-                Debug.Log("There is no functionality for this state");
-                break;
+                case FishState.WALLCHECK:
+                    //fix
+
+
+
+                    break;
+                default:
+                    Debug.Log("There is no functionality for this state");
+                    break;
+            }
         }
     }
 
@@ -172,45 +150,37 @@ public class FishBehavior : MonoBehaviour
         curState = _state;
     }
 
-    void changeDirection()
+    void changeDirection(Vector3 hitNormal)
     {
-
-
-        float rand2 = Random.Range(0, 10);
-        
-
-        if (!LeanTween.isTweening(transform.GetChild(0).gameObject))
+        float newZ = RB.rotation.eulerAngles.z;
+        float DotProd = Vector3.Dot(hitNormal, Vector3.up);
+        float DotProd2electricbogaloo = Vector3.Dot(hitNormal, Vector3.down);
+        if (DotProd >= dotup)
         {
-            if (rand2 >= 5)
-            {
-                Vector3 rotation = new Vector3(RB.transform.rotation.y, 0, Random.Range(45f, 130f));
-                LeanTween.rotate(transform.GetChild(0).gameObject, rotation, 1f);
-                
-            }
-            LeanTween.rotate(transform.GetChild(0).gameObject, new Vector3(RB.transform.rotation.y,0, 90), .5f);
 
-            if (rand2 <= 5)
-            {
-                LeanTween.delayedCall(.1f, () => timeKeeper = true);
-                if (gameObject.transform.rotation.y > 0f)
-                {
-                    Quaternion rotation2 = Quaternion.Euler(0f, 180f, 0f);
-                    Quaternion.Lerp(RB.gameObject.transform.rotation, rotation2, flaten.Evaluate(timer));
-                }
-                else
-                {
-                    Quaternion rotation3 = Quaternion.Euler(0f, 180f, 0f);
-                    Quaternion.Lerp(RB.gameObject.transform.rotation, rotation3, flaten.Evaluate(timer));
-                }
-            }
+            newZ = 45f;
         }
-        if (timer == 2)
+        else if (DotProd2electricbogaloo >= dotDown)
         {
-            timer = 0;
+            newZ = -45f;
+        }
+        if (curState != FishState.WALLCHECK)
+        {
+            curState = FishState.WALLCHECK;
+            Vector3 Rbrot = RB.transform.eulerAngles;
+            Rbrot.y += 180;
+            Rbrot.z = newZ;
+            LeanTween.cancel(gameObject);
+            LeanTween.rotate(gameObject, Rbrot, 1f);
+            LeanTween.delayedCall(1.5f, () => curState = FishState.WANDERING);
         }
 
+        /*if (RB.transform.GetChild(0).rotation.eulerAngles.y != 0)
+        {
+
+        }*/
     }
-
+    
     void ChanghFightVelocity()
     {
         fightVelocity = (Quaternion.AngleAxis(Random.Range(-45f, 45f), Vector3.forward) * Vector3.down) * pullForce;
