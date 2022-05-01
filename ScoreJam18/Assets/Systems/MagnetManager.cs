@@ -27,30 +27,12 @@ public class MagnetManager : MonoBehaviour
         }
     }
 
+    [SerializeField] private float m_magnetStrength = 1f;
+
     private static readonly List<Magnet> s_registeredMagnets = new();
 
     private void FixedUpdate()
     {
-        VisitMagnets
-        (
-            currentMagnet =>
-            {
-                var currentRelativeVelocity = Vector3.zero;
-                VisitMagnets
-                (
-                    otherMagnet =>
-                    {
-                        if (currentMagnet == otherMagnet)
-                        {
-                            return;
-                        }
-
-                        currentRelativeVelocity += currentMagnet.GetAttractionVelocity(otherMagnet);
-                    }
-                );
-
-                currentMagnet.AddRelativeVelocity(currentRelativeVelocity * Time.fixedDeltaTime);
-            }
-        );
+        // We don't need this anymore
     }
 }

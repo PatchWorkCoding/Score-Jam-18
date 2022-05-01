@@ -1,4 +1,5 @@
 using System.Collections;
+using LootLocker.Requests;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -63,13 +64,45 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        for (int i = 0; i < maxPop; i++)
-        {
-            CreateFish();
-        }
 
-        castButton.gameObject.SetActive(true);
-        repairButton.gameObject.SetActive(false);
+        
+        InitializeLootLocker();
+    }
+
+    private void InitializeLootLocker()
+    {
+        // Roy: Use these methods to start a session, set the name, set the score, and get the list
+        return;
+        LootLockerSDKManager.StartGuestSession((response) =>
+        {
+            if (!response.success)
+            {
+                Debug.Log("error starting LootLocker session");
+                return;
+            }
+
+            Debug.Log("successfully started LootLocker session");
+            LootLockerSDKManager.SetPlayerName("Steve Sux",
+                r =>
+                {
+                    LootLockerSDKManager.SubmitScore(response.player_id.ToString(), 69, 2771,
+                        scoreResponse =>
+                        {
+                            if (!scoreResponse.success)
+                            {
+                                Debug.Log("Failed to submit score");
+                                return;
+                            }
+                    
+                            Debug.Log("Submitted score!");
+                            LootLockerSDKManager.GetScoreList( 2771, 50, 
+                                scoreResponse2 =>
+                                {
+                            
+                                });
+                        });
+                });
+        });
     }
 
     // Update is called once per frame

@@ -13,11 +13,6 @@ public class Magnet : MonoBehaviour
 
     public void AddRelativeVelocity(Vector3 velocity)
     {
-        if (!m_allowAttraction)
-        {
-            return;
-        }
-
         if (isFish)
         {
             Velocity += velocity;
@@ -64,7 +59,7 @@ public class Magnet : MonoBehaviour
     }
 
     [SerializeField] private bool isFish;
-    [SerializeField] private bool m_allowAttraction = true;
+    [SerializeField] private bool m_isPrimary = false;
     private readonly List<Magnet> m_childMagnets = new();
 
     private readonly List<Magnet> m_collidingMagnets = new();
@@ -197,38 +192,6 @@ public class Magnet : MonoBehaviour
     private void OnDisable()
     {
         MagnetManager.DeregisterMagnet(this);
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.DrawWireSphere(transform.position, m_radius);
-
-        var relativeVelocity = Vector3.zero;
-        MagnetManager.VisitMagnets
-        (
-            otherMagnet =>
-            {
-                if (otherMagnet == this)
-                {
-                    return;
-                }
-
-                var directionToOther = GetAttractionVelocity(otherMagnet);
-                if (directionToOther.magnitude > float.Epsilon)
-                {
-                    Gizmos.DrawWireSphere(otherMagnet.transform.position, otherMagnet.m_radius);
-                }
-
-                Gizmos.DrawLine(transform.position, transform.position + directionToOther);
-                relativeVelocity += directionToOther;
-            }
-        );
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(transform.position, transform.position + relativeVelocity);
-        Gizmos.color = Color.white;
-
-        Gizmos.DrawSphere(transform.TransformPoint(m_connectionOffset), 1f);
     }
 
     private void OnEnable()
