@@ -93,7 +93,7 @@ BoxCollider:
   m_GameObject: {fileID: 1239284621}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
@@ -131,6 +131,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 5769712879316150945}
   - {fileID: 1239284622}
   m_Father: {fileID: 0}
   m_RootOrder: 7
@@ -221,16 +222,24 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1940256475991477611}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9dcae27925e9af942af70ae20c576a46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 90
+  myCamera: {fileID: 0}
+  myMagnet: {fileID: 5769712879316150947}
+  doGlobalMovement: 0
+  rotationSpeed: 360
   doClamp: 0
   rotationMinMax: {x: -135, y: 135}
-  moveSpeed: 1
+  forwardMoveSpeed: 1
+  backwardMoveSpeed: 2
   gravity: 0.5
+  pullForce: 0.5
+  overdriveForce: 2
+  overdriveTime: 2
+  doGlobalCombatMovement: 1
 --- !u!114 &1586817720
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257,10 +266,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: baf4ef81-f051-4500-9550-18d6ecbf28a3
-    m_ActionName: Gameplay/Aim[/XInputControllerWindows/dpad/left,/XInputControllerWindows/dpad/right,/Keyboard/a,/Keyboard/d]
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1368930533558565316}
@@ -297,8 +302,168 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 48156409-2125-4cef-aeea-2a1967a7aaa1
     m_ActionName: Gameplay/Movement[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1368930533558565316}
+        m_TargetAssemblyTypeName: LureBehavior, Assembly-CSharp
+        m_MethodName: MoveBackward
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 66758e12-33b3-4fef-906a-bc82deaa483b
+    m_ActionName: Gameplay/MoveBack[/Keyboard/shift]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: Computer
   m_DefaultActionMap: Gameplay
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!1001 &1963720102
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 2
+    m_TransformParent: {fileID: 5427705975956348328}
+    m_Modifications:
+    - target: {fileID: 5769712878024742661, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742661, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_onCombine.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742661, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_onCombine.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742661, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_onCombine.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1368930533558565316}
+    - target: {fileID: 5769712878024742661, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_onCombine.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742661, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_onCombine.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: StickToObject
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742661, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_onCombine.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: LureBehavior, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742661, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_onCombine.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742662, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_Interpolate
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742662, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_CollisionDetection
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.0000029653306
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -180
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742682, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_Name
+      value: PF_Magnet_Drone
+      objectReference: {fileID: 0}
+    - target: {fileID: 5769712878024742682, guid: 60461337e0f30b54c92f2c519bdb2232,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_AddedGameObjects: []
+  m_SourcePrefab: {fileID: 100100000, guid: 60461337e0f30b54c92f2c519bdb2232, type: 3}
+--- !u!4 &5769712879316150945 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5769712878024742663, guid: 60461337e0f30b54c92f2c519bdb2232,
+    type: 3}
+  m_PrefabInstance: {fileID: 1963720102}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5769712879316150947 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5769712878024742661, guid: 60461337e0f30b54c92f2c519bdb2232,
+    type: 3}
+  m_PrefabInstance: {fileID: 1963720102}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6078fca6651e661458fbdd825f0c3399, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

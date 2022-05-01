@@ -15,14 +15,22 @@ public class Magnet : MonoBehaviour
             return;
         }
 
-        if (m_rigidbody != null)
+        if (isFish)
         {
-            m_rigidbody.velocity += velocity;
+            m_velocity += velocity;
         }
         else
         {
-            transform.position += velocity;
+            if (m_rigidbody != null)
+            {
+                m_rigidbody.velocity += velocity;
+            }
+            else
+            {
+                transform.position += velocity;
+            }
         }
+        
     }
 
     public Vector3 GetAttractionVelocity(Magnet otherMagnet)
@@ -82,6 +90,10 @@ public class Magnet : MonoBehaviour
     [SerializeField] private float m_rotationOffset = -90f;
     [SerializeField] private SpriteRenderer m_spriteRenderer;
 
+    [SerializeField] private bool isFish = false;
+
+    Vector3 m_velocity = Vector3.zero;
+
     private void BreakApartFromParent()
     {
         if (m_parentMagnet == null)
@@ -125,6 +137,11 @@ public class Magnet : MonoBehaviour
         // Zack: Find our relative location in terms of the other magnet and store it
         newChild.m_localPosition = newParent.transform.InverseTransformPoint(newChild.transform.position);
         newChild.m_localRotation = Quaternion.Inverse(newParent.transform.rotation) * newChild.transform.rotation;
+    }
+
+    public Vector3 Velocity
+    {
+        get { return m_velocity; }
     }
 
     private void FixedUpdate()

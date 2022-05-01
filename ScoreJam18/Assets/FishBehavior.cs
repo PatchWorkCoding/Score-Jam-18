@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(ValueBehavior))]
+[RequireComponent(typeof(ValueBehavior), typeof(Magnet))]
 public class FishBehavior : MonoBehaviour
 {
     [Header("Base Fish Stats")]
@@ -23,9 +21,12 @@ public class FishBehavior : MonoBehaviour
     bool isResting = false;
     float timeSinceLastUpdate = 0;
     bool shouldTurn;
+    [SerializeField]
+    private float pullForce = 1;
+
     private Vector3 fightVelocity;
-    private float pullForce;
     private RaycastHit whiskerhit;
+
     [SerializeField]
     private float updateTime;
 
@@ -41,6 +42,9 @@ public class FishBehavior : MonoBehaviour
     private float dotup;
     [SerializeField]
     AnimationCurve SizeScaler;
+
+    bool doingWallCheck = true;
+    Magnet myMagnet = null;
     // Start is called before the first frame update
     // Set tween to Keep The parent Rotation, for both
     
@@ -58,6 +62,8 @@ public class FishBehavior : MonoBehaviour
         POINTVALUE = Mathf.CeilToInt(SIZE * 100);
         GetComponent<ValueBehavior>().Value = (uint)POINTVALUE;
         gameObject.transform.localScale = new Vector3(SIZE, SIZE, SIZE);
+
+        myMagnet = GetComponent<Magnet>();
     }
 
     // Update is called once per frame
@@ -65,12 +71,16 @@ public class FishBehavior : MonoBehaviour
     {
         Debug.DrawRay(RB.position, RB.transform.GetChild(0).right * whiskerDistance, Color.red);
         Debug.DrawRay(RB.position, -RB.transform.GetChild(0).right * whiskerDistance, Color.red);
+
+        doingWallCheck = false;
     }
 
     private void FixedUpdate()
     {
-        RB.velocity = transform.right * speed;
+        RB.velocity = (transform.right * speed) + myMagnet.Velocity;
 
+        Debug.DrawRay(transform.position, RB.velocity, Color.black);
+        Debug.DrawRay(transform.position, myMagnet.Velocity, Color.yellow);
 
         if (timeSinceLastUpdate >= updateTime)
         {
@@ -81,37 +91,43 @@ public class FishBehavior : MonoBehaviour
         {
             timeSinceLastUpdate += Time.fixedDeltaTime;
         }
-        if (Physics.Raycast(RB.position, RB.transform.right, out whiskerhit, whiskerDistance))
-        {
-            changeDirection(whiskerhit.normal);
 
-            Debug.Log(whiskerhit.collider.name);
+
+        if (curState == FishState.WANDERING)
+        {
+            if (Physics.Raycast(RB.position, RB.transform.right, out whiskerhit, whiskerDistance))
+            {
+                changeDirection(whiskerhit.normal);
+
+                Debug.Log(whiskerhit.collider.name);
+            }
         }
+        
 
     }
     public void UpdateState()
     {
         if (!Caught)
         {
-
-
             switch (curState)
             {
                 case FishState.WANDERING:
-
-                    int roll2 = UnityEngine.Random.Range(0, 20);
-                    var rotator = RB.rotation.eulerAngles;
-                    int rad = UnityEngine.Random.Range(-45, 45);
-                    rotator.z = rad;
-                    LeanTween.rotate(gameObject, rotator, 1f);
-
-                    if (roll2 % 2 == 0)
+                    if (!doingWallCheck)
                     {
-                        speed = Maxspeed;
-                    }
-                    else
-                    {
-                        speed = Minspeed;
+                        int roll2 = UnityEngine.Random.Range(0, 20);
+                        var rotator = RB.rotation.eulerAngles;
+                        int rad = UnityEngine.Random.Range(-45, 45);
+                        rotator.z = rad;
+                        LeanTween.rotate(gameObject, rotator, 1f);
+
+                        if (roll2 % 2 == 0)
+                        {
+                            speed = Maxspeed;
+                        }
+                        else
+                        {
+                            speed = Minspeed;
+                        }
                     }
                     break;
 
@@ -140,11 +156,6 @@ public class FishBehavior : MonoBehaviour
         }
     }
 
-    public void PullFish(float _force)
-    {
-
-    }
-
     public void ChangeFishState(FishState _state)
     {
         curState = _state;
@@ -164,15 +175,18 @@ public class FishBehavior : MonoBehaviour
         {
             newZ = -45f;
         }
-        if (curState != FishState.WALLCHECK)
+
+        if (!doingWallCheck)
         {
-            curState = FishState.WALLCHECK;
+            doingWallCheck = true;
+
             Vector3 Rbrot = RB.transform.eulerAngles;
             Rbrot.y += 180;
             Rbrot.z = newZ;
+
             LeanTween.cancel(gameObject);
             LeanTween.rotate(gameObject, Rbrot, 1f);
-            LeanTween.delayedCall(1.5f, () => curState = FishState.WANDERING);
+            LeanTween.delayedCall(1.5f, () => doingWallCheck = false);
         }
 
         /*if (RB.transform.GetChild(0).rotation.eulerAngles.y != 0)
