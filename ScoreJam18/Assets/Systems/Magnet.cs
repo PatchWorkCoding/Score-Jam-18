@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,6 +9,8 @@ public class Magnet : MonoBehaviour
 {
     public bool CanAttract => m_childMagnets.Count == 0 && m_parentMagnet == null;
 
+    public Vector3 Velocity { get; private set; } = Vector3.zero;
+
     public void AddRelativeVelocity(Vector3 velocity)
     {
         if (!m_allowAttraction)
@@ -17,7 +20,7 @@ public class Magnet : MonoBehaviour
 
         if (isFish)
         {
-            m_velocity += velocity;
+            Velocity += velocity;
         }
         else
         {
@@ -30,7 +33,6 @@ public class Magnet : MonoBehaviour
                 transform.position += velocity;
             }
         }
-        
     }
 
     public Vector3 GetAttractionVelocity(Magnet otherMagnet)
@@ -61,39 +63,35 @@ public class Magnet : MonoBehaviour
         }
     }
 
+    [SerializeField] private bool isFish;
     [SerializeField] private bool m_allowAttraction = true;
     private readonly List<Magnet> m_childMagnets = new();
 
     private readonly List<Magnet> m_collidingMagnets = new();
 
     [SerializeField] private Vector3 m_connectionOffset = Vector3.zero;
-
     [SerializeField] private bool m_isNegative;
-    private bool? m_lastPolarity;
-
-    // Zack: We store the rigidbody local pos/rot so we can have the rigidbody follow a parent rigidbody.
-    //       New unity does not support rigidbodies as children
-    private Vector3 m_localPosition = Vector3.zero;
-    private Quaternion m_localRotation = Quaternion.identity;
+    [SerializeField] private MeshRenderer[] m_meshRenderers = Array.Empty<MeshRenderer>();
 
     /// <summary>
     ///     Fired when this magnet combines with another. The GameObject passed in is the other magnet.
     /// </summary>
     [SerializeField] private UnityEvent<GameObject> m_onCombine;
 
-    private Magnet m_parentMagnet;
-
     [SerializeField] private int m_priority;
     [SerializeField] private float m_radius = 1f;
     [SerializeField] private Rigidbody m_rigidbody;
-
     [SerializeField] private float m_rotationOffset = -90f;
-    [SerializeField] private SpriteRenderer m_spriteRenderer;
+    [SerializeField] private string m_targetShaderName = "metalPurple(Clone)";
 
-    [SerializeField] private bool isFish = false;
+    private bool? m_lastPolarity;
 
-    Vector3 m_velocity = Vector3.zero;
-
+    // Zack: We store the rigidbody local pos/rot so we can have the rigidbody follow a parent rigidbody.
+    //       New unity does not support rigidbodies as children
+    private Vector3 m_localPosition = Vector3.zero;
+    private Quaternion m_localRotation = Quaternion.identity;
+    private Magnet m_parentMagnet;
+    
     private void BreakApartFromParent()
     {
         if (m_parentMagnet == null)
@@ -139,11 +137,6 @@ public class Magnet : MonoBehaviour
         newChild.m_localRotation = Quaternion.Inverse(newParent.transform.rotation) * newChild.transform.rotation;
     }
 
-    public Vector3 Velocity
-    {
-        get { return m_velocity; }
-    }
-
     private void FixedUpdate()
     {
         if (m_parentMagnet == null)
@@ -164,7 +157,7 @@ public class Magnet : MonoBehaviour
         {
             return;
         }
-        
+
         var otherMagnet = collision.transform.GetComponentInChildren<Magnet>(true);
         if (otherMagnet == null)
         {
@@ -250,12 +243,29 @@ public class Magnet : MonoBehaviour
 
     private void SetSpriteColor(bool isNegative)
     {
-        if (m_spriteRenderer == null)
+        var targetColor = isNegative ? Color.blue : Color.red;
+        foreach (var meshRenderer in m_meshRenderers)
         {
-            return;
-        }
+            if (meshRenderer == null)
+            {
+                continue;
+            }
 
-        m_spriteRenderer.color = isNegative ? Color.blue : Color.red;
+            foreach (var material in meshRenderer.sharedMaterials)
+            {
+                if (material == null)
+                {
+                    continue;
+                }
+
+                if (material.name != m_targetShaderName)
+                {
+                    continue;
+                }
+
+                material.color = targetColor;
+            }
+        }
     }
 
     private void Update()

@@ -48,7 +48,7 @@
                 {
                     "name": "",
                     "id": "0d61bc44-9777-466f-8e56-d48b032b34f1",
-                    "path": "<Keyboard>/space",
+                    "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
                     "groups": "Computer",
@@ -114,7 +114,7 @@
                 {
                     "name": "",
                     "id": "5b2e54f9-4e24-4221-b054-8dd42d37e40b",
-                    "path": "<Keyboard>/shift",
+                    "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

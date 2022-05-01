@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine.InputSystem;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ public class LureBehavior : MonoBehaviour
     Camera myCamera;
     [SerializeField]
     Magnet myMagnet = null;
+
+    [SerializeField] private Variables propellerVariablesObject = null;
 
     [Header("Outside Combat Properties")]
     [SerializeField]
@@ -60,6 +63,12 @@ public class LureBehavior : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        UpdateVelocity(Time.fixedDeltaTime);
+        UpdatePropellerSpin();
+    }
+
+    private void UpdateVelocity(float deltaTime)
+    {
         if (!isInCombat)
         {
             if (doGlobalMovement)
@@ -71,11 +80,11 @@ public class LureBehavior : MonoBehaviour
             {
                 if (doClamp)
                 {
-                    rotZ = Mathf.Clamp(rotZ + (input.x * rotationSpeed * Time.deltaTime), rotationMinMax.x, rotationMinMax.y);
+                    rotZ = Mathf.Clamp(rotZ + (input.x * rotationSpeed * deltaTime), rotationMinMax.x, rotationMinMax.y);
                 }
                 else
                 {
-                    rotZ += (input.x * rotationSpeed * Time.deltaTime);
+                    rotZ += (input.x * rotationSpeed * deltaTime);
                 }
 
                 transform.rotation = Quaternion.Euler(0, 0, rotZ);
@@ -98,18 +107,16 @@ public class LureBehavior : MonoBehaviour
                 {
                     if (doClamp)
                     {
-                        rotZ = Mathf.Clamp(rotZ + (input.x * rotationSpeed * Time.deltaTime), rotationMinMax.x, rotationMinMax.y);
+                        rotZ = Mathf.Clamp(rotZ + (input.x * rotationSpeed * deltaTime), rotationMinMax.x, rotationMinMax.y);
                     }
                     else
                     {
-                        rotZ += (input.x * rotationSpeed * Time.deltaTime);
+                        rotZ += (input.x * rotationSpeed * deltaTime);
                     }
 
-                    RB.velocity = ((Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (movingBack ? overdriveForce : pullForce)) + 
-                        curFish.FightVelocity;
+                    RB.velocity = ((Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (movingBack ? overdriveForce : pullForce)) + curFish.FightVelocity;
 
-                    Debug.DrawRay(transform.position, 
-                        (Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (movingBack ? overdriveForce : pullForce) * 2, Color.yellow);
+                    Debug.DrawRay(transform.position, (Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (movingBack ? overdriveForce : pullForce) * 2, Color.yellow);
                 }
 
                 if (movingBack)
@@ -120,18 +127,17 @@ public class LureBehavior : MonoBehaviour
                     }
                     else
                     {
-                        curOverdriveTime += Time.deltaTime;
+                        curOverdriveTime += deltaTime;
                     }
                 }
                 else if (curOverdriveTime > 0)
                 {
-                    curOverdriveTime -= Time.deltaTime;
+                    curOverdriveTime -= deltaTime;
                 }
 
                 Debug.DrawRay(transform.position, (((Vector3)input.normalized * pullForce) + curFish.FightVelocity) * 2, Color.green);
                 Debug.DrawRay(curFish.transform.position, curFish.FightVelocity * 2, Color.yellow);
             }
-            
         }
 
         if (transform.position.y >= GameManager.GM.SeaLevel)
@@ -160,9 +166,14 @@ public class LureBehavior : MonoBehaviour
 
         if (transform.position.y < 0)
         {
-            myCamera.transform.position = Vector3.Lerp(myCamera.transform.position,
-                new Vector3(myCamera.transform.position.x, transform.position.y, myCamera.transform.position.z), Time.deltaTime);
+            myCamera.transform.position = Vector3.Lerp(myCamera.transform.position, new Vector3(myCamera.transform.position.x, transform.position.y, myCamera.transform.position.z), Time.fixedDeltaTime);
         }
+    }
+
+    private void UpdatePropellerSpin()
+    {
+        var propellerDot = Vector3.Dot(RB.velocity, transform.up);
+        Variables.Object(propellerVariablesObject.gameObject).Set("SpeedMultiplier", propellerDot);
     }
 
     public void RotateDrone(InputAction.CallbackContext _ctx)
