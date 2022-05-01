@@ -18,6 +18,12 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     TextMeshProUGUI scoreText = null;
     [SerializeField]
+    Button castButton, repairButton = null;
+    [SerializeField]
+    uint repairCost = 10;
+    [SerializeField]
+    GameObject gameoverScreen = null;
+    [SerializeField]
     GameObject camera = null;
     [SerializeField]
     GameObject canvas = null;
@@ -25,6 +31,7 @@ public class GameManager : MonoBehaviour
     Transform drone = null;
     [SerializeField]
     Transform ballon = null, waterSurface = null;
+
 
     [Header("Fish Spawn Properties")]
     [SerializeField]
@@ -60,6 +67,9 @@ public class GameManager : MonoBehaviour
         {
             CreateFish();
         }
+
+        castButton.gameObject.SetActive(true);
+        repairButton.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -83,11 +93,11 @@ public class GameManager : MonoBehaviour
         UpdateButtons();
     }
 
-    public void SubtractMoney(uint _value)
+    public void SubtractMoney(int _value)
     {
-        StartCoroutine(UpdateMoneyText(money, _value));
+        StartCoroutine(UpdateMoneyText(money, (uint)_value));
 
-        money -= _value;
+        money -= (uint)_value;
 
         UpdateButtons();
     }
@@ -114,9 +124,11 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < pointsToAdd; i++)
         {
-            scoreText.text = "Score: " + score + "\nMoney: $" + GetDisplayScore(displayScore);
+            scoreText.text = "Score: " + GetDisplayScore(score) + "\nMoney: $" + GetDisplayScore(displayScore);
+
             yield return new WaitForSeconds(0.01f);
-            displayScore++;
+
+            displayScore--;
         }
     }
 
@@ -158,7 +170,7 @@ public class GameManager : MonoBehaviour
 
         LeanTween.move(drone.gameObject, ballon.position, 2);
         LeanTween.rotate(drone.gameObject, Vector3.zero, 2);
-        LeanTween.move(camera, new Vector3(0, 8, -90), 2);
+        LeanTween.move(camera, new Vector3(0, 13.5f, -90), 2);
         
         canvas.SetActive(true);
 
@@ -169,7 +181,15 @@ public class GameManager : MonoBehaviour
 
         if (_didPlayerDie)
         {
-            //Swap Buttons to pay for a repair
+            if (money >= repairCost)
+            {
+                castButton.gameObject.SetActive(false);
+                repairButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                gameoverScreen.SetActive(true);
+            }
         }
     }
 
@@ -201,6 +221,13 @@ public class GameManager : MonoBehaviour
         {
             return new Vector3(Random.Range(widthMinMax.x, widthMinMax.y), -Random.Range((depth / 4) * 3, (depth / 4) * 4), 0);
         }
+    }
+
+    public void ResetGame()
+    {
+        gameoverScreen.SetActive(false);
+        Debug.Log("reset Game");
+        //Application.reload
     }
 
     private void OnDrawGizmos()

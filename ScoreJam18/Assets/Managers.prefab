@@ -1,5 +1,67 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1186740276
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1186740277}
+  m_Layer: 0
+  m_Name: Water Surface Pos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1186740277
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1186740276}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2486161363197997688}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1708868583
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1708868584}
+  m_Layer: 0
+  m_Name: Balloon Pos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1708868584
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708868583}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2486161363197997688}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2486161363197997694
 GameObject:
   m_ObjectHideFlags: 0
@@ -29,9 +91,11 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1186740277}
+  - {fileID: 1708868584}
   m_Father: {fileID: 0}
-  m_RootOrder: 11
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2486161363197997689
 MonoBehaviour:
@@ -66,8 +130,23 @@ MonoBehaviour:
   - shopButton: {fileID: 0}
     buttonPushCost: 30
   scoreText: {fileID: 0}
+  castButton: {fileID: 0}
+  repairButton: {fileID: 0}
+  repairCost: 10
   camera: {fileID: 0}
   canvas: {fileID: 0}
   drone: {fileID: 0}
-  ballon: {fileID: 0}
-  waterSurface: {fileID: 0}
+  ballon: {fileID: 1708868584}
+  waterSurface: {fileID: 1186740277}
+  maxPop: 10
+  fishToSpawn:
+  - {fileID: 6071787561473655765, guid: 3c463530c88d96045ab6413777922fc0, type: 3}
+  - {fileID: 1059352209017996993, guid: b1f0980f0985ed3438d757330e346ece, type: 3}
+  - {fileID: 1420054178024877749, guid: 58eb641c33ac7264485396f5db0fd61a, type: 3}
+  - {fileID: 6817453073677578867, guid: b7168a39c21ae764bb65ac26e098a635, type: 3}
+  timeVariance: {x: 5, y: 10}
+  commonUpperBound: 100
+  uncommonUpperBound: 500
+  rareUpperBound: 1000
+  depthMinMax: {x: 0, y: -19.22}
+  widthMinMax: {x: -9, y: 5.91}

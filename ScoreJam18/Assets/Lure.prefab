@@ -168,7 +168,7 @@ Transform:
   - {fileID: 5769712879316150945}
   - {fileID: 4971343233390736109}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &98452319137293385
 MeshFilter:
@@ -247,7 +247,7 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 56
   m_CollisionDetection: 0
 --- !u!114 &1368930533558565316
 MonoBehaviour:
@@ -266,7 +266,7 @@ MonoBehaviour:
   propellerVariablesObject: {fileID: 7477572540108448533}
   doGlobalMovement: 0
   rotationSpeed: 360
-  doClamp: 0
+  doClamp: 1
   rotationMinMax: {x: -75, y: 75}
   forwardMoveSpeed: 1
   backwardMoveSpeed: 2

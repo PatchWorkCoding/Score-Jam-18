@@ -44,8 +44,10 @@ public class LureBehavior : MonoBehaviour
 
     bool isInCombat = false;
     FishBehavior curFish = null;
-    GameObject attachedObject = null;
+    GameManager attachedObject = null;
     float curOverdriveTime = 0;
+
+    bool usingOverdrive = false;
 
     bool isInLimbo = false;
 
@@ -59,6 +61,8 @@ public class LureBehavior : MonoBehaviour
     {
         RB = GetComponent<Rigidbody>();
         transform.GetChild(1).gameObject.SetActive(false);
+
+
     }
 
     // Update is called once per frame
@@ -121,13 +125,13 @@ public class LureBehavior : MonoBehaviour
                     Debug.DrawRay(transform.position, (Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (movingBack ? overdriveForce : pullForce) * 2, Color.yellow);
                 }
 
-                if (movingBack)
+                if (usingOverdrive)
                 {
                     if (curOverdriveTime >= overdriveTime)
                     {
                         GoTopside();
                         //This is where player should die!!
-                        //Debug.Log("Die");
+                        Debug.Log("Die");
                     }
                     else
                     {
@@ -139,8 +143,11 @@ public class LureBehavior : MonoBehaviour
                     curOverdriveTime -= deltaTime;
                 }
 
-                Debug.DrawRay(transform.position, (((Vector3)input.normalized * pullForce) + curFish.FightVelocity) * 2, Color.green);
-                Debug.DrawRay(curFish.transform.position, curFish.FightVelocity * 2, Color.yellow);
+                if (curFish != null)
+                {
+                    Debug.DrawRay(transform.position, (((Vector3)input.normalized * pullForce) + curFish.FightVelocity) * 2, Color.green);
+                    Debug.DrawRay(curFish.transform.position, curFish.FightVelocity * 2, Color.yellow);
+                }
             }
         }
 
@@ -161,15 +168,6 @@ public class LureBehavior : MonoBehaviour
         transform.GetChild(1).gameObject.SetActive(true);
         LeanTween.scale(transform.GetChild(1).GetChild(1).gameObject, new Vector3(3, 3, 3), 1f);
 
-        GameManager.GM.TransitionTopSide(curFish != null, curOverdriveTime >= overdriveTime);
-
-        if (isInCombat)
-        {
-            isInCombat = false;
-            Destroy(curFish.gameObject);
-            curFish = null;
-        }
-
         if (attachedObject != null)
         {
             if (attachedObject.GetComponent<ValueBehavior>())
@@ -180,6 +178,17 @@ public class LureBehavior : MonoBehaviour
                 print("called");
             }
         }
+
+        GameManager.GM.TransitionTopSide(curFish != null, curOverdriveTime >= overdriveTime);
+
+        if (isInCombat)
+        {
+            isInCombat = false;
+            Destroy(curFish.gameObject);
+            curFish = null;
+        }
+
+        
 
         RB.velocity = Vector3.zero;
     }
@@ -221,7 +230,20 @@ public class LureBehavior : MonoBehaviour
         }
     }
 
-    public void StickToObject(GameObject _obj) 
+    public void UsingOverdrive(InputAction.CallbackContext _ctx)
+    {
+        if (_ctx.started)
+        {
+            usingOverdrive = true;
+        }
+
+        else if (_ctx.canceled)
+        {
+            usingOverdrive = false;
+        }
+    }
+
+    public void StickToObject(GameManager _obj) 
     {
         if (_obj.tag == "fish")
         {

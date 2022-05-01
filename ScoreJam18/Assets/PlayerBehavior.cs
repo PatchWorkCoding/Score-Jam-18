@@ -8,7 +8,7 @@ public class PlayerBehavior : MonoBehaviour
     [SerializeField]
     float pullForce = 1, throwForce = 20;
     [SerializeField]
-    GameObject lure = null, fish = null;
+    GameManager lure = null, fish = null;
 
     float angle = 0;
 
