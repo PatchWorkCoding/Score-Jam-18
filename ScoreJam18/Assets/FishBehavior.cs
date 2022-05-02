@@ -60,7 +60,7 @@ public class FishBehavior : MonoBehaviour
         SIZE = Random.Range(0.1f, 1.5f);
         STAMINA = 3 - SIZE;
         BASEPOINTVALUE += Mathf.CeilToInt(SIZE * 100);
-        GetComponent<ValueBehavior>().Value = (uint)BASEPOINTVALUE;
+        GetComponent<ValueBehavior>().Value = BASEPOINTVALUE;
         gameObject.transform.localScale = new Vector3(SIZE, SIZE, SIZE);
 
         gameObject.transform.position = GameManager.GM.MakeRarityDepthPos(GetComponent<ValueBehavior>().Value);

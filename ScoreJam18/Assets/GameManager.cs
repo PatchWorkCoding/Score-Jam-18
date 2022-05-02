@@ -13,15 +13,15 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     ShopButton[] shopButtons = null;
 
-    uint score = 0;
-    uint money = 0;
+    int score = 0;
+    int money = 0;
 
     [SerializeField]
     TextMeshProUGUI scoreText = null;
     [SerializeField]
     Button castButton, repairButton = null;
     [SerializeField]
-    uint repairCost = 10;
+    int repairCost = 10;
     [SerializeField]
     GameObject gameoverScreen = null;
     [SerializeField]
@@ -48,6 +48,15 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     Vector2 widthMinMax = Vector2.zero;
 
+    [Header("UI Properties")]
+    [SerializeField]
+    GameObject scoreBoard = null;
+    [SerializeField]
+    GameObject scoreboardHolder =null, scoreElement = null, resetButton = null;
+    [SerializeField]
+    GameObject scoreSubmit = null;
+
+
     private void Awake()
     {
         if (GM == null)
@@ -64,15 +73,29 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        for (int i = 0; i < shopButtons.Length; i++)
+        {
+            shopButtons[i].SetButtonActive(money);
+        }
+
+        for (int i = 0; i < maxPop; i++)
+        {
+            CreateFish();
+        }
+
+        repairButton.gameObject.SetActive(false);
+        castButton.gameObject.SetActive(true);
+        
+        gameoverScreen.SetActive(false);
 
         
-        InitializeLootLocker();
     }
 
-    private void InitializeLootLocker()
+    private void InitializeLootLocker(string _name)
     {
         // Roy: Use these methods to start a session, set the name, set the score, and get the list
-        return;
+        Debug.Log("It Worky: " + _name);
+        //return;
         LootLockerSDKManager.StartGuestSession((response) =>
         {
             if (!response.success)
@@ -82,10 +105,10 @@ public class GameManager : MonoBehaviour
             }
 
             Debug.Log("successfully started LootLocker session");
-            LootLockerSDKManager.SetPlayerName("Steve Sux",
+            LootLockerSDKManager.SetPlayerName(/*"Steve Sux"*/ _name,
                 r =>
                 {
-                    LootLockerSDKManager.SubmitScore(response.player_id.ToString(), 69, 2771,
+                    LootLockerSDKManager.SubmitScore(response.player_id.ToString(), score, 2771,
                         scoreResponse =>
                         {
                             if (!scoreResponse.success)
@@ -95,10 +118,32 @@ public class GameManager : MonoBehaviour
                             }
                     
                             Debug.Log("Submitted score!");
-                            LootLockerSDKManager.GetScoreList( 2771, 50, 
+                            LootLockerSDKManager.GetScoreList( 2771, 15, 
                                 scoreResponse2 =>
                                 {
-                            
+                                    for (int i = 0; i < 15; i++)
+                                    {
+                                        Transform _scoreElement = Instantiate(scoreElement, scoreboardHolder.transform).transform;
+
+                                        if (i < scoreResponse2.items.Length)
+                                        {
+                                            _scoreElement.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text =
+                                            scoreResponse2.items[i].player.name;
+
+                                            _scoreElement.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().text =
+                                            GetDisplayScore(scoreResponse2.items[i].score);
+                                        }
+                                        else
+                                        {
+                                            _scoreElement.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text =
+                                            "N/A";
+
+                                            _scoreElement.GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>().text =
+                                            GetDisplayScore(0);
+                                        }
+                                    }
+
+                                    Instantiate(resetButton, scoreboardHolder.transform).GetComponent<Button>().onClick.AddListener(ResetGame);
                                 });
                         });
                 });
@@ -116,7 +161,7 @@ public class GameManager : MonoBehaviour
         get { return seaLevel; }
     }
 
-    public void AddScore(uint _value)
+    public void AddScore(int _value)
     {
         StartCoroutine(UpdateScoreText(score, money, _value));
 
@@ -128,19 +173,19 @@ public class GameManager : MonoBehaviour
 
     public void SubtractMoney(int _value)
     {
-        StartCoroutine(UpdateMoneyText(money, (uint)_value));
+        StartCoroutine(UpdateMoneyText(money, _value));
 
-        money -= (uint)_value;
+        money -= _value;
 
         UpdateButtons();
     }
 
-    public IEnumerator UpdateScoreText(uint curScore, uint curMoney, uint pointsToAdd)
+    public IEnumerator UpdateScoreText(int curScore, int curMoney, int pointsToAdd)
     {
-        uint displayScore = curScore;
-        uint displayMoney = curMoney;
+        int displayScore = curScore;
+        int displayMoney = curMoney;
 
-        for (int i = 0; i < pointsToAdd; i++)
+        for (int i = 0; i <= pointsToAdd; i++)
         {
             scoreText.text = "Score: " + GetDisplayScore(displayScore) + "\nMoney: $" + GetDisplayScore(displayMoney);
             
@@ -151,11 +196,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public IEnumerator UpdateMoneyText(uint curMoney, uint pointsToAdd)
+    public IEnumerator UpdateMoneyText(int curMoney, int pointsToAdd)
     {
-        uint displayScore = curMoney;
+        int displayScore = curMoney;
 
-        for (int i = 0; i < pointsToAdd; i++)
+        for (int i = 0; i <= pointsToAdd; i++)
         {
             scoreText.text = "Score: " + GetDisplayScore(score) + "\nMoney: $" + GetDisplayScore(displayScore);
 
@@ -173,7 +218,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public string GetDisplayScore(uint score)
+    public string GetDisplayScore(int score)
     {
         string scoreText = score.ToString();
         string returnString = "";
@@ -221,9 +266,24 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                gameoverScreen.SetActive(true);
+                EndGame();
             }
         }
+    }
+
+    public void EndGame()
+    {
+        gameoverScreen.SetActive(true);
+        scoreSubmit.SetActive(true);
+        scoreBoard.SetActive(false);
+    }
+
+    public void SumbitScore(TMP_InputField _input)
+    {
+        scoreBoard.SetActive(true);
+        scoreSubmit.SetActive(false);
+
+        InitializeLootLocker(_input.text);
     }
 
     public void CreateFish()
@@ -284,9 +344,9 @@ public class ShopButton
     [SerializeField]
     Button shopButton = null;
     [SerializeField]
-    uint buttonPushCost = 0;
+    int buttonPushCost = 0;
 
-    public void SetButtonActive(uint _value) 
+    public void SetButtonActive(int _value) 
     {
         shopButton.interactable = buttonPushCost <= _value;
         Debug.Log(shopButton.interactable);

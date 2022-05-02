@@ -5,9 +5,9 @@ using UnityEngine;
 public class ValueBehavior : MonoBehaviour
 {
     [SerializeField]
-    uint value = 0;
+    int value = 0;
 
-    public uint Value 
+    public int Value 
     { 
         get { return value; }
         set { this.value = value; }

@@ -44,7 +44,7 @@ public class LureBehavior : MonoBehaviour
 
     bool isInCombat = false;
     FishBehavior curFish = null;
-    GameManager attachedObject = null;
+    GameObject attachedObject = null;
     float curOverdriveTime = 0;
 
     bool usingOverdrive = false;
@@ -172,7 +172,11 @@ public class LureBehavior : MonoBehaviour
         {
             if (attachedObject.GetComponent<ValueBehavior>())
             {
-                GameManager.GM.AddScore(attachedObject.GetComponent<ValueBehavior>().Value);
+                if (curOverdriveTime < overdriveTime)
+                {
+                    GameManager.GM.AddScore(attachedObject.GetComponent<ValueBehavior>().Value);
+                }
+                
                 attachedObject = null;
                 Destroy(attachedObject);
                 print("called");
@@ -243,7 +247,7 @@ public class LureBehavior : MonoBehaviour
         }
     }
 
-    public void StickToObject(GameManager _obj) 
+    public void StickToObject(GameObject _obj) 
     {
         if (_obj.tag == "fish")
         {
