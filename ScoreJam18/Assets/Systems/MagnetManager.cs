@@ -30,9 +30,4 @@ public class MagnetManager : MonoBehaviour
     [SerializeField] private float m_magnetStrength = 1f;
 
     private static readonly List<Magnet> s_registeredMagnets = new();
-
-    private void FixedUpdate()
-    {
-        // We don't need this anymore
-    }
 }

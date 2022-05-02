@@ -7,7 +7,7 @@ using UnityEngine.Events;
 [ExecuteInEditMode]
 public class Magnet : MonoBehaviour
 {
-    public bool CanAttract => m_childMagnets.Count == 0 && m_parentMagnet == null;
+    public bool CanAttract => GetValidChildCount() == 0 && m_parentMagnet == null;
 
     public Vector3 Velocity { get; private set; } = Vector3.zero;
 
@@ -30,17 +30,9 @@ public class Magnet : MonoBehaviour
         }
     }
 
-    public Vector3 GetAttractionVelocity(Magnet otherMagnet)
+    public Vector3 GetAttractionVelocity(Magnet otherMagnet, float attractionForce, float repelForce)
     {
         if (!otherMagnet.CanAttract)
-        {
-            return Vector3.zero;
-        }
-
-        var distance = Vector3.Distance(otherMagnet.transform.position, transform.position);
-        var totalRadius = m_radius + otherMagnet.m_radius;
-        var closeEnough = distance <= totalRadius;
-        if (!closeEnough)
         {
             return Vector3.zero;
         }
@@ -48,36 +40,29 @@ public class Magnet : MonoBehaviour
         var areAttracting = otherMagnet.m_isNegative != m_isNegative;
         if (areAttracting)
         {
-            var direction = (otherMagnet.transform.position - transform.position).normalized * (totalRadius - distance);
+            var direction = (otherMagnet.transform.position - transform.position).normalized * attractionForce;
             return direction;
         }
         else
         {
-            var direction = (transform.position - otherMagnet.transform.position).normalized * (totalRadius - distance);
+            var direction = (transform.position - otherMagnet.transform.position).normalized * repelForce;
             return direction;
         }
     }
 
+
     [SerializeField] private bool isFish;
-    [SerializeField] private bool m_isPrimary = false;
+
+    [SerializeField] private float m_attractionForce = 5f;
+    [SerializeField] private Transform m_beamSource;
     private readonly List<Magnet> m_childMagnets = new();
 
     private readonly List<Magnet> m_collidingMagnets = new();
 
     [SerializeField] private Vector3 m_connectionOffset = Vector3.zero;
+    [SerializeField] private bool m_enableBeam = true;
+    private readonly RaycastHit[] m_hits = new RaycastHit[10];
     [SerializeField] private bool m_isNegative;
-    [SerializeField] private MeshRenderer[] m_meshRenderers = Array.Empty<MeshRenderer>();
-
-    /// <summary>
-    ///     Fired when this magnet combines with another. The GameObject passed in is the other magnet.
-    /// </summary>
-    [SerializeField] private UnityEvent<GameObject> m_onCombine;
-
-    [SerializeField] private int m_priority;
-    [SerializeField] private float m_radius = 1f;
-    [SerializeField] private Rigidbody m_rigidbody;
-    [SerializeField] private float m_rotationOffset = -90f;
-    [SerializeField] private string m_targetShaderName = "metalPurple(Clone)";
 
     private bool? m_lastPolarity;
 
@@ -85,8 +70,25 @@ public class Magnet : MonoBehaviour
     //       New unity does not support rigidbodies as children
     private Vector3 m_localPosition = Vector3.zero;
     private Quaternion m_localRotation = Quaternion.identity;
+    [SerializeField] private MeshRenderer[] m_meshRenderers = Array.Empty<MeshRenderer>();
+
+    /// <summary>
+    ///     Fired when this magnet combines with another. The GameObject passed in is the other magnet.
+    /// </summary>
+    [SerializeField] private UnityEvent<GameObject> m_onCombine;
+
     private Magnet m_parentMagnet;
-    
+
+    [SerializeField] private int m_priority;
+    [SerializeField] private float m_radius = 1f;
+    [SerializeField] private float m_repelForce = 5f;
+    [SerializeField] private Rigidbody m_rigidbody;
+    [SerializeField] private float m_rotationOffset = -90f;
+
+    [SerializeField] private float m_sphereCastDistance = 1f;
+    [SerializeField] private float m_sphereCastRadius = 1f;
+    [SerializeField] private string m_targetShaderName = "metalPurple(Clone)";
+
     private void BreakApartFromParent()
     {
         if (m_parentMagnet == null)
@@ -134,15 +136,27 @@ public class Magnet : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (m_parentMagnet == null)
+        UpdateOffset();
+        UpdateMagnetism();
+    }
+
+    private int GetValidChildCount()
+    {
+        if (m_childMagnets.Count == 0)
         {
-            return;
+            return 0;
         }
 
-        transform.position = m_parentMagnet.transform.TransformPoint(m_parentMagnet.m_connectionOffset);
-        var distance = m_parentMagnet.transform.position - transform.position;
-        var angle = Mathf.Atan2(distance.y, distance.x) * Mathf.Rad2Deg + m_rotationOffset;
-        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        var validCount = 0;
+        for (var i = 0; i < m_childMagnets.Count; i++)
+        {
+            if (m_childMagnets[i] != null)
+            {
+                validCount++;
+            }
+        }
+
+        return validCount;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -194,6 +208,18 @@ public class Magnet : MonoBehaviour
         MagnetManager.DeregisterMagnet(this);
     }
 
+    private void OnDrawGizmosSelected()
+    {
+        if (m_enableBeam && m_beamSource != null)
+        {
+            var start = m_beamSource.position;
+            var finish = start + m_beamSource.forward * m_sphereCastDistance;
+            Gizmos.DrawLine(start, finish);
+            Gizmos.DrawWireSphere(start, m_sphereCastRadius);
+            Gizmos.DrawWireSphere(finish, m_sphereCastRadius);
+        }
+    }
+
     private void OnEnable()
     {
         MagnetManager.RegisterMagnet(this);
@@ -238,5 +264,55 @@ public class Magnet : MonoBehaviour
             SetSpriteColor(m_isNegative);
             m_lastPolarity = m_isNegative;
         }
+    }
+
+    private void UpdateMagnetism()
+    {
+        if (!m_enableBeam)
+        {
+            return;
+        }
+
+        if (m_beamSource == null)
+        {
+            return;
+        }
+
+        var hitCount = Physics.SphereCastNonAlloc(transform.position, m_sphereCastRadius, m_beamSource.forward, m_hits, m_sphereCastDistance);
+        for (var i = 0; i < hitCount; i++)
+        {
+            var hitTransform = m_hits[i].transform;
+            if (hitTransform == null)
+            {
+                continue;
+            }
+
+            var otherMagnet = hitTransform.GetComponentInChildren<Magnet>();
+            if (otherMagnet == null)
+            {
+                continue;
+            }
+
+            if (otherMagnet == this)
+            {
+                continue; // Ignore ourselves
+            }
+
+            var attractionVelocity = otherMagnet.GetAttractionVelocity(this, m_attractionForce, m_repelForce) * Time.fixedDeltaTime;
+            otherMagnet.AddRelativeVelocity(attractionVelocity);
+        }
+    }
+
+    private void UpdateOffset()
+    {
+        if (m_parentMagnet == null)
+        {
+            return;
+        }
+
+        transform.position = m_parentMagnet.transform.TransformPoint(m_parentMagnet.m_connectionOffset);
+        var distance = m_parentMagnet.transform.position - transform.position;
+        var angle = Mathf.Atan2(distance.y, distance.x) * Mathf.Rad2Deg + m_rotationOffset;
+        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }
 }
