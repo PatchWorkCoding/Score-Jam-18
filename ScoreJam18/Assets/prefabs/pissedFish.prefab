@@ -67,13 +67,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SIZE: 0
   STAMINA: 0
-  POINTVALUE: 0
+  BASEPOINTVALUE: 0
   curState: 0
   whiskerDistance: 2.09
-  pullForce: 1
+  pullForce: 2
+  MaxpullForce: 2
   updateTime: 2.5
-  Maxspeed: 2
-  Minspeed: 1
+  Maxspeed: 4.93
+  Minspeed: 2.69
   dotDown: 0.36
   dotup: 0.36
   SizeScaler:
@@ -121,18 +122,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6078fca6651e661458fbdd825f0c3399, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_allowAttraction: 1
+  isFish: 1
+  m_attractionForce: 5
+  m_beamSource: {fileID: 0}
   m_connectionOffset: {x: 0, y: 2.5, z: 0}
+  m_enableBeam: 1
   m_isNegative: 0
+  m_meshRenderers: []
   m_onCombine:
     m_PersistentCalls:
       m_Calls: []
   m_priority: 0
   m_radius: 5
+  m_repelForce: 5
   m_rigidbody: {fileID: 6817453073677578830}
   m_rotationOffset: -90
-  m_spriteRenderer: {fileID: 6817453074014298355}
-  isFish: 1
+  m_sphereCastDistance: 1
+  m_sphereCastRadius: 1
+  m_targetShaderName: metalPurple(Clone)
 --- !u!1 &6817453074014298357
 GameObject:
   m_ObjectHideFlags: 0

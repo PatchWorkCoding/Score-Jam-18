@@ -71,6 +71,7 @@ MonoBehaviour:
   curState: 0
   whiskerDistance: 2.09
   pullForce: 1
+  MaxpullForce: 2
   updateTime: 2.5
   Maxspeed: 2
   Minspeed: 1

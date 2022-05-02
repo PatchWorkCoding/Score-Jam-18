@@ -126,11 +126,22 @@ public class LureBehavior : MonoBehaviour
                     {
                         rotZ += (input.x * rotationSpeed * deltaTime);
                     }
+                    float velocityScale = 1f;
 
-                    RB.velocity = ((Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (usingOverdrive ? overdriveForce : pullForce)) + curFish.FightVelocity;
+                    if (usingOverdrive || ((movingBack || movingForward) && usingOverdrive))
+                    {
+                        velocityScale = overdriveForce;
+                    }
+                    else if (movingBack || movingForward)
+                    {
+                        velocityScale = pullForce;
+                    }
+                    
+                    RB.velocity = ((Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (velocityScale)) + curFish.FightVelocity;
 
-                    Debug.DrawRay(transform.position, (Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (movingBack ? overdriveForce : pullForce) * 2, Color.yellow);
+                    Debug.DrawRay(transform.position, RB.velocity * 2, Color.yellow);
                     fishMeter.transform.GetChild(0).up = (Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right);
+
                 }
 
                 if (usingOverdrive)
@@ -144,7 +155,7 @@ public class LureBehavior : MonoBehaviour
                     else
                     {
                         curOverdriveTime += deltaTime;
-                        
+
                     }
                 }
                 else if (curOverdriveTime > 0)
@@ -152,19 +163,19 @@ public class LureBehavior : MonoBehaviour
                     curOverdriveTime -= deltaTime;
                 }
 
-                fishMeter.transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().color = 
+                fishMeter.transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().color =
                     fuelGauge.Evaluate((1 / overdriveTime) * curOverdriveTime);
                 if (curFish != null)
                 {
                     fishMeter.transform.rotation = Quaternion.identity;
                     fishMeter.SetActive(true);
-                    fishMeter.transform.GetChild(1).up  = -curFish.FightVelocity.normalized;
+                    fishMeter.transform.GetChild(1).up = -curFish.FightVelocity.normalized;
                     Debug.DrawRay(transform.position, (((Vector3)input.normalized * pullForce) + curFish.FightVelocity) * 2, Color.green);
                     Debug.DrawRay(curFish.transform.position, curFish.FightVelocity * 2, Color.yellow);
                 }
             }
         }
-
+        
         if (transform.position.y >= GameManager.GM.SeaLevel)
         {
             GoTopside();
@@ -175,13 +186,16 @@ public class LureBehavior : MonoBehaviour
             myCamera.transform.position = Vector3.Lerp(myCamera.transform.position, new Vector3(myCamera.transform.position.x, transform.position.y, myCamera.transform.position.z), Time.fixedDeltaTime);
         }
     }
+    public void OnGUI()
+    {
+        GUILayout.Label(RB.velocity.ToString());
+    }
 
-
-    private void GoTopside() 
+    private void GoTopside()
     {
         transform.GetChild(1).gameObject.SetActive(true);
         LeanTween.scale(transform.GetChild(1).GetChild(1).gameObject, new Vector3(3, 3, 3), 1f);
-        
+
         if (attachedObject != null)
         {
             if (attachedObject.GetComponent<ValueBehavior>())
@@ -190,7 +204,7 @@ public class LureBehavior : MonoBehaviour
                 {
                     GameManager.GM.AddScore(attachedObject.GetComponent<ValueBehavior>().Value);
                 }
-                
+
                 attachedObject = null;
                 Destroy(attachedObject);
                 print("called");
@@ -210,7 +224,7 @@ public class LureBehavior : MonoBehaviour
             curFish = null;
         }
 
-        
+
 
         RB.velocity = Vector3.zero;
     }
@@ -226,7 +240,7 @@ public class LureBehavior : MonoBehaviour
         input = _ctx.ReadValue<Vector2>();
     }
 
-    public void MoveFoward(InputAction.CallbackContext _ctx) 
+    public void MoveFoward(InputAction.CallbackContext _ctx)
     {
         if (_ctx.started)
         {
@@ -265,7 +279,7 @@ public class LureBehavior : MonoBehaviour
         }
     }
 
-    public void StickToObject(GameObject _obj) 
+    public void StickToObject(GameObject _obj)
     {
         if (_obj.tag == "fish")
         {

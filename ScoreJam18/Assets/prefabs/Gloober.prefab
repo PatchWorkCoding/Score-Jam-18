@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 1420054178024877749}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -7.35, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5560114522363213096}
@@ -65,20 +65,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc2b626af6f786f41b9560bc72e8757d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SIZE: 0
-  STAMINA: 0
-  BASEPOINTVALUE: 0
+  SIZE: 1.2
+  STAMINA: 1.03
+  BASEPOINTVALUE: 102
   curState: 0
   whiskerDistance: 2.09
   pullForce: 1
+  MaxpullForce: 3.5
   updateTime: 2.5
-  Maxspeed: 2
-  Minspeed: 1
+  Maxspeed: 0.29
+  Minspeed: 0.13
   dotDown: 0.36
   dotup: 0.36
   SizeScaler:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
@@ -122,8 +141,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isFish: 1
-  m_isPrimary: 0
+  m_attractionForce: 5
+  m_beamSource: {fileID: 0}
   m_connectionOffset: {x: 0, y: 2.5, z: 0}
+  m_enableBeam: 1
   m_isNegative: 0
   m_meshRenderers: []
   m_onCombine:
@@ -131,8 +152,11 @@ MonoBehaviour:
       m_Calls: []
   m_priority: 0
   m_radius: 5
+  m_repelForce: 5
   m_rigidbody: {fileID: 1420054178024877704}
   m_rotationOffset: -90
+  m_sphereCastDistance: 1
+  m_sphereCastRadius: 1
   m_targetShaderName: metalPurple(Clone)
 --- !u!1 &5560114522363213097
 GameObject:

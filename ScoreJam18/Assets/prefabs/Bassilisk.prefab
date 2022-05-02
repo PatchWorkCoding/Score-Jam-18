@@ -240,9 +240,10 @@ MonoBehaviour:
   curState: 0
   whiskerDistance: 2.09
   pullForce: 1
+  MaxpullForce: 3
   updateTime: 2.5
-  Maxspeed: 2
-  Minspeed: 1
+  Maxspeed: 0.2
+  Minspeed: 0.1
   dotDown: 0.36
   dotup: 0.36
   SizeScaler:
@@ -291,8 +292,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isFish: 1
-  m_isPrimary: 0
+  m_attractionForce: 5
+  m_beamSource: {fileID: 0}
   m_connectionOffset: {x: 0, y: 2.5, z: 0}
+  m_enableBeam: 1
   m_isNegative: 0
   m_meshRenderers: []
   m_onCombine:
@@ -300,6 +303,9 @@ MonoBehaviour:
       m_Calls: []
   m_priority: 0
   m_radius: 5
+  m_repelForce: 5
   m_rigidbody: {fileID: 6071787561473655784}
   m_rotationOffset: -90
+  m_sphereCastDistance: 1
+  m_sphereCastRadius: 1
   m_targetShaderName: metalPurple(Clone)

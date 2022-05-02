@@ -45,7 +45,7 @@ public class FishBehavior : MonoBehaviour
     [SerializeField]
     AnimationCurve SizeScaler;
     
-    bool doingWallCheck = true;
+    bool doingWallCheck = false;
     Magnet myMagnet = null;
     
 
@@ -75,8 +75,6 @@ public class FishBehavior : MonoBehaviour
     {
         Debug.DrawRay(RB.position, RB.transform.GetChild(0).right * whiskerDistance, Color.red);
         Debug.DrawRay(RB.position, -RB.transform.GetChild(0).right * whiskerDistance, Color.red);
-
-        doingWallCheck = false;
     }
 
     private void FixedUpdate()
@@ -102,6 +100,7 @@ public class FishBehavior : MonoBehaviour
             if (Physics.Raycast(RB.position, RB.transform.right, out whiskerhit, whiskerDistance))
             {
                 changeDirection(whiskerhit.normal);
+                
 
                 Debug.Log(whiskerhit.collider.name);
             }
@@ -180,7 +179,7 @@ public class FishBehavior : MonoBehaviour
             Vector3 Rbrot = RB.transform.eulerAngles;
             Rbrot.y += 180;
             Rbrot.z = newZ;
-
+            Rbrot.x = 0;
             LeanTween.cancel(gameObject);
             LeanTween.rotate(gameObject, Rbrot, 1f);
             LeanTween.delayedCall(1.5f, () => doingWallCheck = false);
