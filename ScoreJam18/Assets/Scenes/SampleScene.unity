@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -416,7 +416,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-45214
+  m_Name: pb_Mesh-20916
   serializedVersion: 11
   m_SubMeshes:
   - serializedVersion: 2
@@ -708,6 +708,11 @@ PrefabInstance:
       propertyPath: camera
       value: 
       objectReference: {fileID: 330585543}
+    - target: {fileID: 2486161363197997691, guid: 3357161824e861149a3de11934e5fda0,
+        type: 3}
+      propertyPath: maxPop
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 2486161363197997691, guid: 3357161824e861149a3de11934e5fda0,
         type: 3}
       propertyPath: gameoverScreen

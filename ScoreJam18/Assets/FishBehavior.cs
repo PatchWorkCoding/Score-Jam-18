@@ -66,7 +66,7 @@ public class FishBehavior : MonoBehaviour
         GetComponent<ValueBehavior>().Value = BASEPOINTVALUE;
         gameObject.transform.localScale = new Vector3(SIZE, SIZE, SIZE);
 
-        gameObject.transform.position = GameManager.GM.MakeRarityDepthPos(GetComponent<ValueBehavior>().Value);
+        transform.position = GameManager.GM.MakeRarityDepthPos(GetComponent<ValueBehavior>().Value);
         myMagnet = GetComponent<Magnet>();
     }
 

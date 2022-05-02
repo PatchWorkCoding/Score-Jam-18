@@ -294,26 +294,26 @@ public class GameManager : MonoBehaviour
 
     public Vector3 MakeRarityDepthPos(float _rarity) 
     {
-        float depth = Mathf.Abs(depthMinMax.x - depthMinMax.y);
+        float depth = Vector2.Distance(new Vector2(0, depthMinMax.x), new Vector2(0, depthMinMax.y));
 
         if (_rarity >= 0 && _rarity < commonUpperBound)
         {
-            return new Vector3(Random.Range(widthMinMax.x, widthMinMax.y), -Random.Range(0, (depth / 4) * 1), 0);
+            return new Vector3(Random.Range(widthMinMax.x, widthMinMax.y), depthMinMax.x - Random.Range(0, (depth / 4) * 1), 0);
         }
 
         else if(_rarity >= commonUpperBound && _rarity < uncommonUpperBound)
         {
-            return new Vector3(Random.Range(widthMinMax.x, widthMinMax.y), -Random.Range((depth / 4) * 1, (depth / 4) * 2), 0);
+            return new Vector3(Random.Range(widthMinMax.x, widthMinMax.y), depthMinMax.x - Random.Range((depth / 4) * 1, (depth / 4) * 2), 0);
         }
 
         else if (_rarity >= uncommonUpperBound && _rarity < rareUpperBound)
         {
-            return new Vector3(Random.Range(widthMinMax.x, widthMinMax.y), -Random.Range((depth / 4) * 2, (depth / 4) * 3), 0);
+            return new Vector3(Random.Range(widthMinMax.x, widthMinMax.y), depthMinMax.x - Random.Range((depth / 4) * 2, (depth / 4) * 3), 0);
         }
 
         else
         {
-            return new Vector3(Random.Range(widthMinMax.x, widthMinMax.y), -Random.Range((depth / 4) * 3, (depth / 4) * 4), 0);
+            return new Vector3(Random.Range(widthMinMax.x, widthMinMax.y), depthMinMax.x - Random.Range((depth / 4) * 3, (depth / 4) * 4), 0);
         }
     }
 
