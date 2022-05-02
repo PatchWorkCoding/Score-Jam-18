@@ -226,6 +226,7 @@ public class LureBehavior : MonoBehaviour
         }
 
         myMagnet.enabled = true;
+        myMagnet.GetComponent<Collider>().enabled = true;
 
         RB.velocity = Vector3.zero;
     }
@@ -296,6 +297,7 @@ public class LureBehavior : MonoBehaviour
         }
 
         myMagnet.enabled = false;
+        myMagnet.GetComponent<Collider>().enabled = false;
         attachedObject = _obj;
         print("Object Attached: " + _obj.name);
     }

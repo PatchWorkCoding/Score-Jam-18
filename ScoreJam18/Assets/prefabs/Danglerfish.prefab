@@ -120,7 +120,7 @@ Transform:
   m_Children:
   - {fileID: 3983481568773254792}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1059352209017997052
 Rigidbody:
@@ -152,7 +152,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SIZE: 0
   STAMINA: 0
-  BASEPOINTVALUE: 0
+  BASEPOINTVALUE: 50
   curState: 0
   whiskerDistance: 2.09
   pullForce: 1
@@ -178,10 +178,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2.0363064
+  m_Radius: 0.7262783
+  m_Height: 2.0035124
   m_Direction: 0
-  m_Center: {x: -0.0067181587, y: 0, z: 0}
+  m_Center: {x: 0.409765, y: -0.3836894, z: 0}
 --- !u!114 &6653803835868995423
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210,7 +210,7 @@ MonoBehaviour:
   isFish: 1
   m_attractionForce: 5
   m_beamSource: {fileID: 0}
-  m_connectionOffset: {x: 0, y: 2.5, z: 0}
+  m_connectionOffset: {x: -1, y: -0.45, z: 0}
   m_enableBeam: 1
   m_isNegative: 0
   m_meshRenderers: []

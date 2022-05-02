@@ -218,6 +218,10 @@ public class Magnet : MonoBehaviour
             Gizmos.DrawWireSphere(start, m_sphereCastRadius);
             Gizmos.DrawWireSphere(finish, m_sphereCastRadius);
         }
+        else
+        {
+            Gizmos.DrawWireSphere(transform.position + m_connectionOffset, 0.1f);
+        }
     }
 
     private void OnEnable()

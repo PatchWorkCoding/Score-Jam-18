@@ -125,7 +125,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seaLevel: 2.33
-  money: 700
+  money: 0
   LurePrefab: {fileID: 1940256475991477611, guid: 9f0ed694f32e93d4c80fbcfaafa113f8,
     type: 3}
   scoreText: {fileID: 20349116270709326}
@@ -141,7 +141,7 @@ MonoBehaviour:
   bannedNames:
   - kkk
   - fag
-  maxPop: 10
+  maxPop: 7
   fishToSpawn:
   - {fileID: 6071787561473655765, guid: 3c463530c88d96045ab6413777922fc0, type: 3}
   - {fileID: 1059352209017996993, guid: b1f0980f0985ed3438d757330e346ece, type: 3}
@@ -181,6 +181,8 @@ MonoBehaviour:
   resetButton: {fileID: 1900856090858854659, guid: b226a8d4006592543bca57e05d26de6e,
     type: 3}
   scoreSubmit: {fileID: 1077916384}
+  mcAnimator: {fileID: 0}
+  confetti: {fileID: 0}
 --- !u!82 &3163870085945376393
 AudioSource:
   m_ObjectHideFlags: 0
@@ -285,6 +287,10 @@ PrefabInstance:
     serializedVersion: 2
     m_TransformParent: {fileID: 2486161363197997688}
     m_Modifications:
+    - target: {fileID: 133007762, guid: 2a6c0bf28ad02ac4095fe8fe80063d92, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 133007764, guid: 2a6c0bf28ad02ac4095fe8fe80063d92, type: 3}
       propertyPath: m_SpriteState.m_DisabledSprite
       value: 
