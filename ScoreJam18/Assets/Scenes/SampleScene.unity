@@ -724,8 +724,13 @@ PrefabInstance:
       objectReference: {fileID: 1964602098}
     - target: {fileID: 2486161363197997691, guid: 3357161824e861149a3de11934e5fda0,
         type: 3}
+      propertyPath: depthMinMax.x
+      value: -5.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486161363197997691, guid: 3357161824e861149a3de11934e5fda0,
+        type: 3}
       propertyPath: rareUpperBound
-      value: 300
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 2486161363197997691, guid: 3357161824e861149a3de11934e5fda0,
         type: 3}
@@ -735,7 +740,7 @@ PrefabInstance:
     - target: {fileID: 2486161363197997691, guid: 3357161824e861149a3de11934e5fda0,
         type: 3}
       propertyPath: uncommonUpperBound
-      value: 100
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 2486161363197997694, guid: 3357161824e861149a3de11934e5fda0,
         type: 3}
