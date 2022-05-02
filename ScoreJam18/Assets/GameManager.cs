@@ -63,6 +63,10 @@ public class GameManager : MonoBehaviour
     GameObject scoreboardHolder =null, scoreElement = null, resetButton = null;
     [SerializeField]
     GameObject scoreSubmit = null;
+    [SerializeField]
+    Animator mcAnimator;
+    [SerializeField]
+    ParticleSystem confetti;
 
     bool isResetingGame = false;
 
@@ -173,6 +177,18 @@ public class GameManager : MonoBehaviour
 
     public void AddScore(int _value)
     {
+        if (_value >= 1000)
+        {
+
+            mcAnimator.SetTrigger("surprised");
+            StartCoroutine(confettiRoutine());
+        }
+        else
+        {
+            mcAnimator.SetTrigger("happy");
+            StartCoroutine(confettiRoutine());
+        }
+        
         StartCoroutine(UpdateScoreText(score, money, _value));
 
         score += _value;
@@ -271,12 +287,14 @@ public class GameManager : MonoBehaviour
         {
             if (money >= repairCost)
             {
+                mcAnimator.SetTrigger("lose");
                 castButton.gameObject.SetActive(false);
                 repairButton.gameObject.SetActive(true);
             }
             else
             {
                 EndGame(true);
+                mcAnimator.SetTrigger("lose");
             }
         }
     }
@@ -408,6 +426,12 @@ public class GameManager : MonoBehaviour
         //Application.reload
     }
 
+    private IEnumerator confettiRoutine()
+    {
+        confetti.Play();
+        yield return new WaitForSeconds(2f);
+        confetti.Stop();
+    }
     public void RemoveFish(GameObject _fish)
     {
         if (!isResetingGame) 
