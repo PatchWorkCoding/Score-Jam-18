@@ -275,6 +275,7 @@ public class GameManager : MonoBehaviour
     {
         gameoverScreen.SetActive(true);
         scoreSubmit.SetActive(true);
+        scoreSubmit.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = "Your Score: " + GetDisplayScore(score);
         scoreBoard.SetActive(false);
     }
 
