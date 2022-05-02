@@ -48,8 +48,15 @@ public class LureBehavior : MonoBehaviour
     float curOverdriveTime = 0;
 
     bool usingOverdrive = false;
-
+    [Header("Fish Meter")]
+    [SerializeField]
+    GameObject fishMeter = null;
     bool isInLimbo = false;
+    [SerializeField]
+    Gradient fuelGauge;
+    [SerializeField]
+    private float combatRotation;
+    private float nonCombatRotation;
 
     private void Start()
     {
@@ -61,7 +68,7 @@ public class LureBehavior : MonoBehaviour
     {
         RB = GetComponent<Rigidbody>();
         transform.GetChild(1).gameObject.SetActive(false);
-
+        nonCombatRotation = rotationSpeed;
 
     }
 
@@ -106,7 +113,7 @@ public class LureBehavior : MonoBehaviour
                 {
                     RB.velocity = ((Vector3)input.normalized * (movingBack ? overdriveForce : pullForce)) + curFish.FightVelocity;
 
-                    Debug.DrawRay(transform.position, (Vector3)input.normalized * (movingBack ? overdriveForce : pullForce) * 2, Color.yellow);
+                    fishMeter.transform.GetChild(0).up = input.normalized;
                 }
 
                 else
@@ -120,9 +127,10 @@ public class LureBehavior : MonoBehaviour
                         rotZ += (input.x * rotationSpeed * deltaTime);
                     }
 
-                    RB.velocity = ((Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (movingBack ? overdriveForce : pullForce)) + curFish.FightVelocity;
+                    RB.velocity = ((Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (usingOverdrive ? overdriveForce : pullForce)) + curFish.FightVelocity;
 
                     Debug.DrawRay(transform.position, (Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (movingBack ? overdriveForce : pullForce) * 2, Color.yellow);
+                    fishMeter.transform.GetChild(0).up = (Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right);
                 }
 
                 if (usingOverdrive)
@@ -136,6 +144,7 @@ public class LureBehavior : MonoBehaviour
                     else
                     {
                         curOverdriveTime += deltaTime;
+                        
                     }
                 }
                 else if (curOverdriveTime > 0)
@@ -143,8 +152,13 @@ public class LureBehavior : MonoBehaviour
                     curOverdriveTime -= deltaTime;
                 }
 
+                fishMeter.transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().color = 
+                    fuelGauge.Evaluate((1 / overdriveTime) * curOverdriveTime);
                 if (curFish != null)
                 {
+                    fishMeter.transform.rotation = Quaternion.identity;
+                    fishMeter.SetActive(true);
+                    fishMeter.transform.GetChild(1).up  = -curFish.FightVelocity.normalized;
                     Debug.DrawRay(transform.position, (((Vector3)input.normalized * pullForce) + curFish.FightVelocity) * 2, Color.green);
                     Debug.DrawRay(curFish.transform.position, curFish.FightVelocity * 2, Color.yellow);
                 }
@@ -167,7 +181,7 @@ public class LureBehavior : MonoBehaviour
     {
         transform.GetChild(1).gameObject.SetActive(true);
         LeanTween.scale(transform.GetChild(1).GetChild(1).gameObject, new Vector3(3, 3, 3), 1f);
-
+        
         if (attachedObject != null)
         {
             if (attachedObject.GetComponent<ValueBehavior>())
@@ -181,12 +195,16 @@ public class LureBehavior : MonoBehaviour
                 Destroy(attachedObject);
                 print("called");
             }
+
+            rotationSpeed = nonCombatRotation;
+            doClamp = true;
         }
 
         GameManager.GM.TransitionTopSide(curFish != null, curOverdriveTime >= overdriveTime);
 
         if (isInCombat)
         {
+            fishMeter.SetActive(false);
             isInCombat = false;
             Destroy(curFish.gameObject);
             curFish = null;
@@ -254,6 +272,8 @@ public class LureBehavior : MonoBehaviour
             if (_obj.GetComponent<FishBehavior>())
             {
                 curFish = _obj.GetComponent<FishBehavior>();
+                doClamp = false;
+                rotationSpeed = combatRotation;
                 isInCombat = true;
                 curFish.ChangeFishState(FishState.COMBAT);
                 Debug.Log("Attach to Fish");

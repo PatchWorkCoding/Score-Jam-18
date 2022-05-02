@@ -23,6 +23,8 @@ public class FishBehavior : MonoBehaviour
     bool shouldTurn;
     [SerializeField]
     private float pullForce = 1;
+    [SerializeField]
+    private float MaxpullForce = 2;
 
     private Vector3 fightVelocity;
     private RaycastHit whiskerhit;
@@ -42,12 +44,14 @@ public class FishBehavior : MonoBehaviour
     private float dotup;
     [SerializeField]
     AnimationCurve SizeScaler;
-
+    
     bool doingWallCheck = true;
     Magnet myMagnet = null;
+    
+
     // Start is called before the first frame update
     // Set tween to Keep The parent Rotation, for both
-    
+
     void Start()
     {
         //Init();
@@ -56,7 +60,6 @@ public class FishBehavior : MonoBehaviour
     public void Init()
     {
         RB = GetComponent<Rigidbody>();
-        
         SIZE = Random.Range(0.1f, 1.5f);
         STAMINA = 3 - SIZE;
         BASEPOINTVALUE += Mathf.CeilToInt(SIZE * 100);
@@ -134,14 +137,7 @@ public class FishBehavior : MonoBehaviour
 
                 case FishState.COMBAT:
                     isResting = isResting == false;
-                    if (!isResting)
-                    {
-                        ChanghFightVelocity();
-                    }
-                    else
-                    {
-                        fightVelocity = Vector3.zero;
-                    }
+                    ChanghFightVelocity();
                     break;
 
                 case FishState.WALLCHECK:
@@ -198,7 +194,7 @@ public class FishBehavior : MonoBehaviour
     
     void ChanghFightVelocity()
     {
-        fightVelocity = (Quaternion.AngleAxis(Random.Range(-45f, 45f), Vector3.forward) * Vector3.down) * pullForce;
+        fightVelocity = (Quaternion.AngleAxis(Random.Range(-45f, 45f), Vector3.forward) * Vector3.down) *  (isResting ? pullForce : MaxpullForce);
     }
 
     public Vector3 FightVelocity
