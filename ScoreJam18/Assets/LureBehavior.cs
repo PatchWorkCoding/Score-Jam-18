@@ -139,7 +139,7 @@ public class LureBehavior : MonoBehaviour
                     
                     RB.velocity = ((Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right) * (velocityScale)) + curFish.FightVelocity;
 
-                    Debug.DrawRay(transform.position, RB.velocity * 2, Color.yellow);
+                    //Debug.DrawRay(transform.position, RB.velocity * 2, Color.yellow);
                     fishMeter.transform.GetChild(0).up = (Quaternion.AngleAxis(rotZ, Vector3.forward) * Vector3.right);
 
                 }
@@ -150,7 +150,7 @@ public class LureBehavior : MonoBehaviour
                     {
                         GoTopside();
                         //This is where player should die!!
-                        Debug.Log("Die");
+                        //Debug.Log("Die");
                     }
                     else
                     {
@@ -170,8 +170,8 @@ public class LureBehavior : MonoBehaviour
                     fishMeter.transform.rotation = Quaternion.identity;
                     fishMeter.SetActive(true);
                     fishMeter.transform.GetChild(1).up = -curFish.FightVelocity.normalized;
-                    Debug.DrawRay(transform.position, (((Vector3)input.normalized * pullForce) + curFish.FightVelocity) * 2, Color.green);
-                    Debug.DrawRay(curFish.transform.position, curFish.FightVelocity * 2, Color.yellow);
+                    //Debug.DrawRay(transform.position, (((Vector3)input.normalized * pullForce) + curFish.FightVelocity) * 2, Color.green);
+                    //Debug.DrawRay(curFish.transform.position, curFish.FightVelocity * 2, Color.yellow);
                 }
             }
         }
@@ -225,6 +225,8 @@ public class LureBehavior : MonoBehaviour
             
         }
 
+        curOverdriveTime = 0;
+
         myMagnet.enabled = true;
         myMagnet.GetComponent<Collider>().enabled = true;
 
@@ -273,11 +275,13 @@ public class LureBehavior : MonoBehaviour
         if (_ctx.started)
         {
             usingOverdrive = true;
+            GameManager.GM.DroneMoveFaster(true);
         }
 
         else if (_ctx.canceled)
         {
             usingOverdrive = false;
+            GameManager.GM.DroneMoveFaster(false);
         }
     }
 
@@ -292,7 +296,7 @@ public class LureBehavior : MonoBehaviour
                 rotationSpeed = combatRotation;
                 isInCombat = true;
                 curFish.ChangeFishState(FishState.COMBAT);
-                Debug.Log("Attach to Fish");
+                //Debug.Log("Attach to Fish");
             }
         }
 
@@ -300,6 +304,8 @@ public class LureBehavior : MonoBehaviour
         myMagnet.GetComponent<Collider>().enabled = false;
         attachedObject = _obj;
         print("Object Attached: " + _obj.name);
+
+        GameManager.GM.PlayMagnetConncet();
     }
 
     public void IncreaseFuel(float _value) 

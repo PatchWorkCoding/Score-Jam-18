@@ -68,6 +68,16 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     ParticleSystem confetti;
 
+    [Header("Sound Properties")]
+    [SerializeField]
+    AudioSource balloonDeflate = null;
+    [SerializeField]
+    AudioSource balloonInflate = null, bubbleAmbience = null, droneAmbience = null,
+        magnetFishAttach = null, droneDeath =null, earnMoney = null, spendMoney = null;
+    [SerializeField]
+    AudioSource[] MagnetFishAmbiences = null;
+
+
     bool isResetingGame = false;
 
     private void Awake()
@@ -194,6 +204,7 @@ public class GameManager : MonoBehaviour
         score += _value;
         money += _value;
 
+        earnMoney.Play();
         UpdateButtons();
     }
 
@@ -203,6 +214,7 @@ public class GameManager : MonoBehaviour
 
         money -= _value;
 
+        spendMoney.Play();
         UpdateButtons();
     }
 
@@ -264,6 +276,11 @@ public class GameManager : MonoBehaviour
         LeanTween.scale(drone.GetChild(1).GetChild(1).gameObject, Vector3.one, 2);
         LeanTween.delayedCall(2f, () => drone.GetComponent<LureBehavior>().enabled = true);
         LeanTween.delayedCall(2f, () => drone.GetChild(1).gameObject.SetActive(false));
+        LeanTween.delayedCall(2f, bubbleAmbience.Play);
+        LeanTween.delayedCall(2f, droneAmbience.Play);
+        //bubbleAmbience.Stop();
+        //droneAmbience.Stop();
+        balloonDeflate.Play();
         
         canvas.SetActive(false);
     }
@@ -275,7 +292,13 @@ public class GameManager : MonoBehaviour
         LeanTween.move(drone.gameObject, ballon.position, 2);
         LeanTween.rotate(drone.gameObject, Vector3.zero, 2);
         LeanTween.move(camera, new Vector3(0, 13.5f, -90), 2);
+
+        bubbleAmbience.Stop();
+        droneAmbience.Stop();
+
+        balloonInflate.Play();
         
+
         canvas.SetActive(true);
 
         if (_caughtFish)
@@ -285,6 +308,7 @@ public class GameManager : MonoBehaviour
 
         if (_didPlayerDie)
         {
+            droneDeath.Play();
             if (money >= repairCost)
             {
                 mcAnimator.SetTrigger("lose");
@@ -462,6 +486,21 @@ public class GameManager : MonoBehaviour
     public void IncreasePopulationSize(int _value) 
     {
         maxPop += _value;
+    }
+
+    public void PlayMagnetConncet()
+    {
+        magnetFishAttach.Play();
+    }
+
+    public void PlayFishAmbient()
+    {
+        MagnetFishAmbiences[Random.Range(0, MagnetFishAmbiences.Length)].Play(0);
+    }
+
+    public void DroneMoveFaster(bool _on)
+    {
+        droneAmbience.pitch = _on ? 1 : 1.25f;
     }
 
     private void OnDrawGizmos()
