@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using LootLocker.Requests;
 using TMPro;
 using UnityEngine;
@@ -10,11 +11,13 @@ public class GameManager : MonoBehaviour
     
     [SerializeField]
     float seaLevel = 10;
-    [SerializeField]
-    ShopButton[] shopButtons = null;
 
     int score = 0;
+    [SerializeField]
     int money = 0;
+
+    [SerializeField]
+    GameObject LurePrefab = null;
 
     [SerializeField]
     TextMeshProUGUI scoreText = null;
@@ -25,14 +28,15 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     GameObject gameoverScreen = null;
     [SerializeField]
-    GameObject camera = null;
+    public GameObject camera = null;
     [SerializeField]
     GameObject canvas = null;
     [SerializeField]
     Transform drone = null;
     [SerializeField]
     Transform ballon = null, waterSurface = null;
-
+    [SerializeField]
+    List<string> bannedNames = null;
 
     [Header("Fish Spawn Properties")]
     [SerializeField]
@@ -48,7 +52,11 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     Vector2 widthMinMax = Vector2.zero;
 
+    List<GameObject> spawnedFish = null;
+
     [Header("UI Properties")]
+    [SerializeField]
+    ShopButton[] shopButtons = null;
     [SerializeField]
     GameObject scoreBoard = null;
     [SerializeField]
@@ -56,6 +64,7 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     GameObject scoreSubmit = null;
 
+    bool isResetingGame = false;
 
     private void Awake()
     {
@@ -73,9 +82,12 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        spawnedFish = new List<GameObject>();
+
         for (int i = 0; i < shopButtons.Length; i++)
         {
-            shopButtons[i].SetButtonActive(money);
+            shopButtons[i].InitButton();
+            shopButtons[i].SetButtonActive(money, false);
         }
 
         for (int i = 0; i < maxPop; i++)
@@ -85,10 +97,8 @@ public class GameManager : MonoBehaviour
 
         repairButton.gameObject.SetActive(false);
         castButton.gameObject.SetActive(true);
-        
-        gameoverScreen.SetActive(false);
 
-        
+        gameoverScreen.SetActive(false);
     }
 
     private void InitializeLootLocker(string _name)
@@ -254,7 +264,7 @@ public class GameManager : MonoBehaviour
 
         if (_caughtFish)
         {
-            LeanTween.delayedCall(Random.Range(timeVariance.x, timeVariance.y), CreateFish);
+            LeanTween.delayedCall(Random.Range(timeVariance.x, timeVariance.y), MakeNewFish);
         }
 
         if (_didPlayerDie)
@@ -266,30 +276,60 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                EndGame();
+                EndGame(true);
             }
         }
     }
 
-    public void EndGame()
+    public void EndGame(bool didDie)
     {
         gameoverScreen.SetActive(true);
         scoreSubmit.SetActive(true);
-        scoreSubmit.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = "Your Score: " + GetDisplayScore(score);
+        if (didDie)
+        {
+            scoreSubmit.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = 
+                "You Ran out of money\nYour Score: " + GetDisplayScore(score);
+        }
+        else
+        {
+            scoreSubmit.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = "Your Score: " + GetDisplayScore(score);
+        }
         scoreBoard.SetActive(false);
     }
 
     public void SumbitScore(TMP_InputField _input)
     {
-        scoreBoard.SetActive(true);
-        scoreSubmit.SetActive(false);
+        if (!bannedNames.Contains(_input.text.ToLower()) && _input.text != "")
+        {
+            scoreBoard.SetActive(true);
+            scoreSubmit.SetActive(false);
 
-        InitializeLootLocker(_input.text);
+            InitializeLootLocker(_input.text);
+        }
+        else
+        {
+            _input.text = "";
+        }
     }
 
     public void CreateFish()
     {
-        Instantiate(fishToSpawn[Random.Range(0, fishToSpawn.Length)], Vector3.zero, Quaternion.identity).GetComponent<FishBehavior>().Init();
+
+        GameObject _curFish = Instantiate(fishToSpawn[Random.Range(0, fishToSpawn.Length)], Vector3.zero, Quaternion.identity);
+        _curFish.GetComponent<FishBehavior>().Init();
+        spawnedFish.Add(_curFish);
+    }
+
+    public void MakeNewFish()
+    {
+        GameObject _curFish = Instantiate(fishToSpawn[Random.Range(0, fishToSpawn.Length)], Vector3.zero, Quaternion.identity);
+        _curFish.GetComponent<FishBehavior>().Init();
+        spawnedFish.Add(_curFish);
+
+        if (spawnedFish.Count < maxPop)
+        {
+            LeanTween.delayedCall(Random.Range(timeVariance.x, timeVariance.y), MakeNewFish);
+        }
     }
 
     public Vector3 MakeRarityDepthPos(float _rarity) 
@@ -319,9 +359,85 @@ public class GameManager : MonoBehaviour
 
     public void ResetGame()
     {
+        //gameoverScreen.SetActive(false);
+
+        score = 0;
+        money = 0;
+
+        isResetingGame = false;
+        
+        for (int i = 0; i < spawnedFish.Count; i++)
+        {
+            Destroy(spawnedFish[i]);
+        }
+
+        isResetingGame = true;
+
+        scoreText.text = "Score: " + GetDisplayScore(score) + "\nMoney: $" + GetDisplayScore(money);
+
+        Destroy(drone.gameObject);
+        drone = Instantiate(LurePrefab, ballon.transform.position, Quaternion.identity).transform;
+
+        for (int i = 0; i < shopButtons.Length; i++)
+        {
+            shopButtons[i].SetButtonActive(money);
+        }
+
+        for (int i = 0; i < maxPop; i++)
+        {
+            CreateFish();
+        }
+
+        if (scoreboardHolder.transform.childCount > 0)
+        {
+            int scoreCount = scoreboardHolder.transform.childCount;
+
+            for (int i = 0; i < scoreCount; i++)
+            {
+                Destroy(scoreboardHolder.transform.GetChild(i).gameObject);
+            }
+        }
+
+        repairButton.gameObject.SetActive(false);
+        castButton.gameObject.SetActive(true);
+
         gameoverScreen.SetActive(false);
+
+
         Debug.Log("reset Game");
         //Application.reload
+    }
+
+    public void RemoveFish(GameObject _fish)
+    {
+        if (!isResetingGame) 
+        {
+            if (spawnedFish.Contains(_fish))
+            {
+                spawnedFish.Remove(_fish);
+                spawnedFish.TrimExcess();
+            }
+        }        
+    }
+
+    public void UpgradePlayerPullForce(float _value)
+    {
+        drone.GetComponent<LureBehavior>().IncreaseBasePullForce(_value);
+    }
+
+    public void UpgradePlayerOverdriveForce(float _value)
+    {
+        drone.GetComponent<LureBehavior>().IncreaseOverdriveForce(_value);
+    }
+
+    public void UpgradePlayerOverdriveFuel(float _value)
+    {
+        drone.GetComponent<LureBehavior>().IncreaseFuel(_value);
+    }
+
+    public void IncreasePopulationSize(int _value) 
+    {
+        maxPop += _value;
     }
 
     private void OnDrawGizmos()
@@ -343,13 +459,51 @@ public class GameManager : MonoBehaviour
 public class ShopButton 
 {
     [SerializeField]
+    string buttonName = "Updgrade";
+    [SerializeField]
     Button shopButton = null;
     [SerializeField]
     int buttonPushCost = 0;
+    [SerializeField]
+    float upgradeCost = 1.1f;
+    [SerializeField]
+    int maxButtonUses = -1;
 
-    public void SetButtonActive(int _value) 
+    int buttonUses = 0;
+
+    public void InitButton()
+    {
+        shopButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = buttonName + "\nCost ($" + buttonPushCost + ")";
+        shopButton.onClick.AddListener(() => GameManager.GM.SubtractMoney(buttonPushCost));
+        shopButton.onClick.AddListener(ButtonClick);
+    }
+
+    public void SetButtonActive(int _value, bool _didPushButton = true) 
     {
         shopButton.interactable = buttonPushCost <= _value;
         Debug.Log(shopButton.interactable);
     } 
+
+    public void ButtonClick()
+    {
+        buttonPushCost = Mathf.RoundToInt(buttonPushCost * upgradeCost);
+        if (maxButtonUses > 0)
+        {
+            if (maxButtonUses < buttonUses)
+            {
+                shopButton.interactable = false;
+                shopButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = buttonName + "\nMaxed";
+            }
+
+            else
+            {
+                buttonUses++;
+                shopButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = buttonName + "\nCost ($" + buttonPushCost + ")";
+            }
+        }
+        else
+        {
+            shopButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = buttonName + "\nCost ($" + buttonPushCost + ")";
+        }
+    }
 }

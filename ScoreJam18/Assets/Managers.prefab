@@ -97,7 +97,7 @@ Transform:
   - {fileID: 1186740277}
   - {fileID: 1708868584}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2486161363197997689
 MonoBehaviour:
@@ -125,13 +125,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seaLevel: 2.33
-  shopButtons:
-  - shopButton: {fileID: 8597437705421508666}
-    buttonPushCost: 10
-  - shopButton: {fileID: 8309557119739868725}
-    buttonPushCost: 20
-  - shopButton: {fileID: 2130070910136720911}
-    buttonPushCost: 30
+  money: 700
+  LurePrefab: {fileID: 1940256475991477611, guid: 9f0ed694f32e93d4c80fbcfaafa113f8,
+    type: 3}
   scoreText: {fileID: 20349116270709326}
   castButton: {fileID: 20349116706973203}
   repairButton: {fileID: 1586148984}
@@ -142,7 +138,10 @@ MonoBehaviour:
   drone: {fileID: 0}
   ballon: {fileID: 1708868584}
   waterSurface: {fileID: 1186740277}
-  maxPop: 1
+  bannedNames:
+  - kkk
+  - fag
+  maxPop: 10
   fishToSpawn:
   - {fileID: 6071787561473655765, guid: 3c463530c88d96045ab6413777922fc0, type: 3}
   - {fileID: 1059352209017996993, guid: b1f0980f0985ed3438d757330e346ece, type: 3}
@@ -154,6 +153,27 @@ MonoBehaviour:
   rareUpperBound: 1000
   depthMinMax: {x: -8.95, y: -19.22}
   widthMinMax: {x: -9, y: 5.91}
+  shopButtons:
+  - buttonName: Upgrade Fuel
+    shopButton: {fileID: 8309557119739868725}
+    buttonPushCost: 200
+    upgradeCost: 1
+    maxButtonUses: -1
+  - buttonName: Updgrade Pull Force
+    shopButton: {fileID: 8597437705421508666}
+    buttonPushCost: 100
+    upgradeCost: 1
+    maxButtonUses: 0
+  - buttonName: Upgrade Boot
+    shopButton: {fileID: 2130070910136720911}
+    buttonPushCost: 200
+    upgradeCost: 1
+    maxButtonUses: -1
+  - buttonName: Upgrade Pond Population
+    shopButton: {fileID: 5373760439454875285}
+    buttonPushCost: 200
+    upgradeCost: 1
+    maxButtonUses: 3
   scoreBoard: {fileID: 831733576}
   scoreboardHolder: {fileID: 8127099666145559092}
   scoreElement: {fileID: 3782655035964305177, guid: 15320a956392f1b4bb318ebf3e0cf91c,
@@ -266,6 +286,11 @@ PrefabInstance:
     m_TransformParent: {fileID: 2486161363197997688}
     m_Modifications:
     - target: {fileID: 133007764, guid: 2a6c0bf28ad02ac4095fe8fe80063d92, type: 3}
+      propertyPath: m_SpriteState.m_DisabledSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 8b9b6a30ffb647f4597adba257e2deb9,
+        type: 3}
+    - target: {fileID: 133007764, guid: 2a6c0bf28ad02ac4095fe8fe80063d92, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 2486161363197997691}
@@ -274,6 +299,15 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2486161363197997691}
     - target: {fileID: 962964887, guid: 2a6c0bf28ad02ac4095fe8fe80063d92, type: 3}
+      propertyPath: m_SpriteState.m_DisabledSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 8b9b6a30ffb647f4597adba257e2deb9,
+        type: 3}
+    - target: {fileID: 962964887, guid: 2a6c0bf28ad02ac4095fe8fe80063d92, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 962964887, guid: 2a6c0bf28ad02ac4095fe8fe80063d92, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 2486161363197997691}
@@ -281,6 +315,12 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 2486161363197997691}
+    - target: {fileID: 20349115513231871, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_SpriteState.m_DisabledSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 8b9b6a30ffb647f4597adba257e2deb9,
+        type: 3}
     - target: {fileID: 20349115513231871, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -396,6 +436,130 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1112440021773671926, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_Name
+      value: Upgrade boost
+      objectReference: {fileID: 0}
+    - target: {fileID: 2130070911333736931, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_SpriteState.m_DisabledSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 8b9b6a30ffb647f4597adba257e2deb9,
+        type: 3}
+    - target: {fileID: 2130070911333736931, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2130070911333736931, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2486161363197997691}
+    - target: {fileID: 2130070911333736931, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 2486161363197997691}
+    - target: {fileID: 5373760438228353401, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_SpriteState.m_DisabledSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 8b9b6a30ffb647f4597adba257e2deb9,
+        type: 3}
+    - target: {fileID: 5373760438228353401, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5373760438228353401, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5373760438228353401, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2486161363197997691}
+    - target: {fileID: 5373760438228353401, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 2486161363197997691}
+    - target: {fileID: 5373760438228353401, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: IncreasePopulationSize
+      objectReference: {fileID: 0}
+    - target: {fileID: 5373760438228353401, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: SubtractMoney
+      objectReference: {fileID: 0}
+    - target: {fileID: 5373760438228353401, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5902657407569101496, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_Name
+      value: Upgrade Pull Force
+      objectReference: {fileID: 0}
+    - target: {fileID: 8309557120958630361, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_SpriteState.m_DisabledSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 8b9b6a30ffb647f4597adba257e2deb9,
+        type: 3}
+    - target: {fileID: 8309557120958630361, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8309557120958630361, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2486161363197997691}
+    - target: {fileID: 8309557120958630361, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 2486161363197997691}
+    - target: {fileID: 8475219177161154243, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_Name
+      value: Upgrade Fuel
+      objectReference: {fileID: 0}
+    - target: {fileID: 8597437706111676374, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_SpriteState.m_DisabledSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 8b9b6a30ffb647f4597adba257e2deb9,
+        type: 3}
+    - target: {fileID: 8597437706111676374, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8597437706111676374, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2486161363197997691}
+    - target: {fileID: 8597437706111676374, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 2486161363197997691}
+    - target: {fileID: 9011319357931414706, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+        type: 3}
+      propertyPath: m_Name
+      value: Upgrade Pond Population
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: 2a6c0bf28ad02ac4095fe8fe80063d92, type: 3}
@@ -468,6 +632,18 @@ MonoBehaviour:
 --- !u!114 &2130070910136720911 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2130070911333736931, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
+    type: 3}
+  m_PrefabInstance: {fileID: 1499938796}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5373760439454875285 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5373760438228353401, guid: 2a6c0bf28ad02ac4095fe8fe80063d92,
     type: 3}
   m_PrefabInstance: {fileID: 1499938796}
   m_PrefabAsset: {fileID: 0}

@@ -9,7 +9,7 @@ public class LureBehavior : MonoBehaviour
 {
     [Header("Properties")]
     [SerializeField]
-    Camera myCamera;
+    GameObject myCamera;
     [SerializeField]
     Magnet myMagnet = null;
 
@@ -69,7 +69,7 @@ public class LureBehavior : MonoBehaviour
         RB = GetComponent<Rigidbody>();
         transform.GetChild(1).gameObject.SetActive(false);
         nonCombatRotation = rotationSpeed;
-
+        myCamera = GameManager.GM.camera.gameObject;
     }
 
     // Update is called once per frame
@@ -222,9 +222,10 @@ public class LureBehavior : MonoBehaviour
             isInCombat = false;
             Destroy(curFish.gameObject);
             curFish = null;
+            
         }
 
-
+        myMagnet.enabled = true;
 
         RB.velocity = Vector3.zero;
     }
@@ -294,8 +295,24 @@ public class LureBehavior : MonoBehaviour
             }
         }
 
+        myMagnet.enabled = false;
         attachedObject = _obj;
         print("Object Attached: " + _obj.name);
+    }
+
+    public void IncreaseFuel(float _value) 
+    {
+        overdriveTime += _value;
+    }
+
+    public void IncreaseBasePullForce(float _value)
+    {
+        pullForce = _value;
+    }
+
+    public void IncreaseOverdriveForce(float _value)
+    {
+        overdriveForce += _value;
     }
 
     private void OnEnable()

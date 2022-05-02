@@ -100,14 +100,16 @@ public class FishBehavior : MonoBehaviour
             if (Physics.Raycast(RB.position, RB.transform.right, out whiskerhit, whiskerDistance))
             {
                 changeDirection(whiskerhit.normal);
-                
-
                 Debug.Log(whiskerhit.collider.name);
             }
-        }
-        
 
+            if (transform.position.y >= GameManager.GM.SeaLevel)
+            {
+                Destroy(gameObject);
+            }
+        }
     }
+
     public void UpdateState()
     {
         if (!Caught)
@@ -140,11 +142,8 @@ public class FishBehavior : MonoBehaviour
                     break;
 
                 case FishState.WALLCHECK:
-                    //fix
-
-
-
                     break;
+
                 default:
                     Debug.Log("There is no functionality for this state");
                     break;
@@ -190,7 +189,12 @@ public class FishBehavior : MonoBehaviour
 
         }*/
     }
-    
+
+    private void OnDestroy()
+    {
+        GameManager.GM.RemoveFish(gameObject);
+    }
+
     void ChanghFightVelocity()
     {
         fightVelocity = (Quaternion.AngleAxis(Random.Range(-45f, 45f), Vector3.forward) * Vector3.down) *  (isResting ? pullForce : MaxpullForce);
